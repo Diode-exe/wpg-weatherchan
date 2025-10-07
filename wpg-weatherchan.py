@@ -28,7 +28,8 @@ text_forecast = []
 # DEF clock Updater
 def clock():
     try:
-        current = time.strftime("%-I %M %S").rjust(8," ")
+        current = time.strftime("%I %M %S").rjust(8, " ")
+        current = current.lstrip("0") 
         timeText.configure(text=current)
         root.after(1000, clock) # run every 1sec
     except Exception as e:
@@ -586,7 +587,7 @@ async def weather_update_async(group):
                     await asyncio.sleep(0.5)  # Small delay between requests
                 
                 # Update time strings
-                real_forecast_time = time.strftime("%-I %p")
+                real_forecast_time = time.strftime("%I %p").lstrip("0")
                 if real_forecast_time == "12 PM": 
                     real_forecast_time = "NOON"
                 real_forecast_date = datetime.datetime.now().strftime("%a %b %d/%Y")
@@ -645,7 +646,8 @@ async def weather_update_async(group):
             debug_msg(f"WEATHER_UPDATE_ASYNC-critical error in group {group}: {str(e)}", 1)
             # Set fallback values
             if not real_forecast_time:
-                real_forecast_time = time.strftime("%-I %p")
+                real_forecast_time = time.strftime("%I %p").lstrip("0")
+
             if not real_forecast_date:
                 real_forecast_date = datetime.datetime.now().strftime("%a %b %d/%Y")
                 
@@ -662,7 +664,7 @@ def weather_update(group):
         # Set fallback values
         global real_forecast_time, real_forecast_date
         if not real_forecast_time:
-            real_forecast_time = time.strftime("%-I %p")
+            real_forecast_time = time.strftime("%I %p").lstrip("0")
         if not real_forecast_date:
             real_forecast_date = datetime.datetime.now().strftime("%a %b %d/%Y")
 
@@ -687,22 +689,30 @@ def bottom_marquee(grouptotal, marquee):
             mrq_msg = wpg.upper()
         else:
             try:
-                wpg_desc = pad + wpg.entries[0]["description"]
+                # Ensure first entry has a valid description
+                first_desc = wpg.entries[0].get("description") or ""
+                wpg_desc = pad + str(first_desc)
+
                 for n in range(1, len(wpg.entries)):
-                    new_entry = wpg.entries[n].get("description", "")
+                    new_entry = wpg.entries[n].get("description") or ""
+                    new_entry = str(new_entry)
                     if len(wpg_desc + pad + new_entry) * 24 < 31000:
                         wpg_desc = wpg_desc + pad + new_entry
                     else:
                         break
+
                 mrq_msg = wpg_desc.upper()
-            except Exception:
+            except Exception as e:
+                debug_msg(f"RSS parsing failed: {e}", 1)
                 mrq_msg = "RSS PROCESSING ERROR"
 
         marquee_length = len(mrq_msg)
         pixels = marquee_length * 24
-        marquee.delete("all")  # Clear previous text
-        text = marquee.create_text(1, 2, anchor='nw', text=pad + mrq_msg + pad, 
-                                  font=('VCR OSD Mono', 25,), fill="white")
+        marquee.delete("all")
+        text = marquee.create_text(
+            1, 2, anchor='nw', text=pad + mrq_msg + pad,
+            font=('VCR OSD Mono', 25,), fill="white"
+        )
 
         def animate_marquee(pos=0):
             if pos < pixels + 730:
@@ -711,7 +721,7 @@ def bottom_marquee(grouptotal, marquee):
                 root.after(2, animate_marquee, pos + 1)
             else:
                 marquee.move(text, pixels + 729, 0)
-                root.after(1000, lambda: bottom_marquee(grouptotal, marquee))  # Restart after a pause
+                root.after(1000, lambda: bottom_marquee(grouptotal, marquee))
 
         animate_marquee()
 
@@ -945,7 +955,7 @@ def main():
 
         # Set initial fallback values
         global real_forecast_time, real_forecast_date
-        real_forecast_time = time.strftime("%-I %p")
+        real_forecast_time = time.strftime("%I %p").lstrip("0")
         if real_forecast_time == "12 PM":
             real_forecast_time = "NOON"
         real_forecast_date = datetime.datetime.now().strftime("%a %b %d/%Y")
@@ -993,7 +1003,7 @@ def main():
         debug_msg("ROOT-launching bottom_marquee", 1)
         try:
             # Use root.after to start the marquee after a short delay
-            root.after(2000, lambda: bottom_marquee(grouptotal))
+            root.after(2000, lambda: bottom_marquee(grouptotal, marquee))
         except Exception as e:
             debug_msg(f"ROOT-bottom marquee error: {str(e)}", 1)
 
