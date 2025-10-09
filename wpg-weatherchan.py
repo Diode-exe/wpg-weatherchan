@@ -37,7 +37,6 @@ def clock():
     except Exception as e:
         debug_msg(f"CLOCK-error: {str(e)}", 1)
         root.after(1000, clock)
-
     
 # DEF main weather pages 
 def weather_page(PageColour, PageNum):
@@ -226,18 +225,30 @@ def weather_page(PageColour, PageNum):
             debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)        
      
             # weather data with safe access
+            # current temperature
             temp_cur = str(safe_get_weather_value(ec_en_wpg.conditions, "temperature", "value", default="--"))
-            temp_high = str(safe_get_weather_value(ec_en_wpg.conditions, "high_temp", "value", default="--"))
-            temp_low = str(safe_get_weather_value(ec_en_wpg.conditions, "low_temp", "value", default="--"))
-           
-            temp_yest_high_val = safe_get_weather_value(ec_en_wpg, "high_temp_yesterday", "value", default="--")
+
+            # forecast highs/lows for today
+            # get today’s forecast from daily_forecasts
+            if hasattr(ec_en_wpg, "daily_forecasts") and len(ec_en_wpg.daily_forecasts) > 0:
+                today_forecast = ec_en_wpg.daily_forecasts[0]
+                temp_high = str(safe_get_weather_value(today_forecast, "high_temp", "value", default="--"))
+                temp_low  = str(safe_get_weather_value(today_forecast, "low_temp", "value", default="--"))
+            else:
+                temp_high = temp_low = "--"
+
+
+            # yesterday’s temps
+            temp_yest_high_val = safe_get_weather_value(ec_en_wpg.observations.get("yesterday", {}), "high_temp", "value", default="--")
             temp_yest_high = safe_round(temp_yest_high_val)
 
-            temp_yest_low_val = safe_get_weather_value(ec_en_wpg, "low_temp_yesterday", "value", default="--")
+            temp_yest_low_val = safe_get_weather_value(ec_en_wpg.observations.get("yesterday", {}), "low_temp", "value", default="--")
             temp_yest_low = safe_round(temp_yest_low_val)
-            
-            temp_norm_high = str(safe_get_weather_value(ec_en_wpg, "normal_high", "value", default="--"))
-            temp_norm_low = str(safe_get_weather_value(ec_en_wpg, "normal_low", "value", default="--"))
+
+            # normal temps
+            temp_norm_high = str(safe_get_weather_value(ec_en_wpg.observations.get("normals", {}), "high_temp", "value", default="--"))
+            temp_norm_low  = str(safe_get_weather_value(ec_en_wpg.observations.get("normals", {}), "low_temp", "value", default="--"))
+
 
             # create 8 lines of text   
             s1 = ("TEMPERATURE STATISTICS FOR WINNIPEG").center(35," ")
@@ -442,40 +453,44 @@ def weather_page(PageColour, PageNum):
             s8 = f"{hrly_period_local[6].strftime('%I:%M %p').lstrip('0').rjust(8)} {str(local_tz)}  {hrly_temp[6].rjust(3)} C  {hrly_cond[6][0:13]}"
 
         elif (PageNum == 10):
-            # ===================== Screen 10 =====================
-            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)        
-        
-            # Precipitation data with safe access
-            wpg_precip_val = safe_get_weather_value(ec_en_wpg.conditions, "pop", "value", default="--")
-            wpg_precip = (str(wpg_precip_val) + " %") if wpg_precip_val is not None else "NIL"
-            
-            brn_precip_val = safe_get_weather_value(ec_en_brn, "pop", "value", default="--")
-            brn_precip = (str(brn_precip_val) + " %") if brn_precip_val is not None else "NIL"
-            
-            tps_precip_val = safe_get_weather_value(ec_en_tps, "pop", "value", default="--")
-            tps_precip = (str(tps_precip_val) + " %") if tps_precip_val is not None else "NIL"
-            
-            fln_precip_val = safe_get_weather_value(ec_en_fln, "pop", "value", default="--")
-            fln_precip = (str(fln_precip_val) + " %") if fln_precip_val is not None else "NIL"
-            
-            thm_precip_val = safe_get_weather_value(ec_en_thm, "pop", "value", default="--")
-            thm_precip = (str(thm_precip_val) + " %") if thm_precip_val is not None else "NIL"
-            
-            chu_precip_val = safe_get_weather_value(ec_en_chu, "pop", "value", default="--")
-            chu_precip = (str(chu_precip_val) + " %") if chu_precip_val is not None else "NIL"
-            
-            yest_precip_val = safe_get_weather_value(ec_en_wpg.conditions, "precip_yesterday", "value", default="--")
-            yest_precip = (str(yest_precip_val) + " MM") if yest_precip_val is not None else "0.0 MM"
-        
-            # create 8 lines of text   
-            s1 = ("MANITOBA PRECIPITATION FORECAST").center(35," ")
-            s2 = "    TODAY WINNIPEG  " + (wpg_precip).rjust(5," ")
-            s3 = "          BRANDON   " + (brn_precip).rjust(5," ")
-            s4 = "          THE PAS   " + (tps_precip).rjust(5," ")
-            s5 = "          FLIN FLON " + (fln_precip).rjust(5," ")
-            s6 = "          THOMPSON  " + (thm_precip).rjust(5," ")
-            s7 = "          CHURCHILL " + (chu_precip).rjust(5," ")
-            s8 = " PREV DAY WINNIPEG  " + (yest_precip).rjust(7," ")
+  # ===================== Screen 10 =====================
+            debug_msg(f"WEATHER_PAGE-display page {PageNum}", 2)
+
+            def get_daily_pop(ec_obj):
+                """
+                Safely get the probability of precipitation (POP) from the first daily forecast.
+                Returns a string with % or '-- %' if data missing.
+                """
+                try:
+                    if hasattr(ec_obj, "daily_forecasts") and len(ec_obj.daily_forecasts) > 0:
+                        pop_val = safe_get_weather_value(ec_obj.daily_forecasts[0], "pop", "value", default="--")
+                        return f"{pop_val} %" if pop_val is not None else "-- %"
+                except Exception as e:
+                    debug_msg(f"get_daily_pop error for {ec_obj}: {e}", 2)
+                return "-- %"
+
+            # Get today’s POP for all stations
+            wpg_precip = get_daily_pop(ec_en_wpg)
+            brn_precip = get_daily_pop(ec_en_brn)
+            tps_precip = get_daily_pop(ec_en_tps)
+            fln_precip = get_daily_pop(ec_en_fln)
+            thm_precip = get_daily_pop(ec_en_thm)
+            chu_precip = get_daily_pop(ec_en_chu)
+
+            # Yesterday's precipitation — fallback, since current ECWeather version may not provide
+            yest_precip_val = safe_get_weather_value(ec_en_wpg.conditions, "precip_yesterday", "value", default=None)
+            yest_precip = f"{yest_precip_val} MM" if yest_precip_val is not None else "-- MM"
+
+            # Create 8 lines of text
+            s1 = "MANITOBA PRECIPITATION FORECAST".center(35, " ")
+            s2 = f"    TODAY WINNIPEG  {wpg_precip.rjust(5,' ')}"
+            s3 = f"          BRANDON   {brn_precip.rjust(5,' ')}"
+            s4 = f"          THE PAS   {tps_precip.rjust(5,' ')}"
+            s5 = f"          FLIN FLON {fln_precip.rjust(5,' ')}"
+            s6 = f"          THOMPSON  {thm_precip.rjust(5,' ')}"
+            s7 = f"          CHURCHILL {chu_precip.rjust(5,' ')}"
+            s8 = f" PREV DAY WINNIPEG  {yest_precip.rjust(7,' ')}"
+
 
         elif (PageNum == 11):    
             # ===================== Screen 11 =====================
