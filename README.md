@@ -33,8 +33,4 @@ This code is available under the terms of the [MIT License]
 
 ## Note
 
-It starts up, but cannot get weather data and the time is all wonky. Unlikely that this will ever be fixed, but I'll see what I can do.
-The biggest issue is that there is a lack of RSS feed that works with this. 
-I could rewrite it all to work with that, but it would strip so many features. 
-Really, the best thing to do is to just rewrite the whole thing from scratch, taking at least the green, blue, and red background's code, so that I don't have to make that again. 
-Maybe this will be WeatherPeg's cousin? 
+This is fixed now. 
