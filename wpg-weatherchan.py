@@ -14,9 +14,12 @@ import os # for background music
 import re # for word shortener
 import signal
 import sys
+import urllib.request
+from bs4 import BeautifulSoup
+
 
 prog = "wpg-weather"
-ver = "2.2"
+ver = "2.3"
 
 # Global variables for weather data
 real_forecast_time = ""
@@ -704,68 +707,90 @@ def weather_update(group):
             real_forecast_date = datetime.datetime.now().strftime("%a %b %d/%Y")
 
 # DEF bottom marquee scrolling text with improved error handling
-def bottom_marquee(grouptotal, marquee):
+def bottom_marquee(grouptotal, marquee, update_interval=300000):
+    """
+    Displays a continuously scrolling RSS feed in the given marquee Canvas.
+    
+    Parameters:
+    - grouptotal: number of weather groups (not used directly here, kept for compatibility)
+    - marquee: Tkinter Canvas object to display the scrolling text
+    - update_interval: interval in ms to refresh the RSS feed (default 5 min)
+    """
     try:
         width = 35
         pad = " " * width
+        current_feed_text = ""
 
-        def get_rss_feed():
+        # Function to fetch RSS feed with proper User-Agent
+        def fetch_rss():
+            nonlocal current_feed_text
+            url = "https://www.cbc.ca/webfeed/rss/rss-canada-manitoba"
             try:
-                url = "https://www.cbc.ca/webfeed/rss/rss-canada-manitoba"
-                wpg = feedparser.parse(url)
-                if not wpg.entries:
-                    return "NO NEWS DATA AVAILABLE AT THIS TIME"
-                return wpg
-            except Exception:
-                return "RSS FEED TEMPORARILY UNAVAILABLE"
+                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=10) as response:
+                    data = response.read()
+                feed = feedparser.parse(data)
+                if not feed.entries:
+                    current_feed_text = "NO NEWS DATA AVAILABLE AT THIS TIME"
+                    return
 
-        wpg = get_rss_feed()
-        if isinstance(wpg, str):
-            mrq_msg = wpg.upper()
-        else:
-            try:
-                # Ensure first entry has a valid description
-                first_desc = wpg.entries[0].get("description") or ""
-                wpg_desc = pad + str(first_desc)
-
-                for n in range(1, len(wpg.entries)):
-                    new_entry = wpg.entries[n].get("description") or ""
-                    new_entry = str(new_entry)
-                    if len(wpg_desc + pad + new_entry) * 24 < 31000:
-                        wpg_desc = wpg_desc + pad + new_entry
+                # Build scrolling message
+                mrq_msg = pad
+                for entry in feed.entries:
+                    desc = entry.get("description") or ""
+                    soup = BeautifulSoup(desc, "html.parser")
+                    for img in soup.find_all("img"):
+                        img.decompose()
+                    for p in soup.find_all("p"):
+                        p.unwrap()
+                    desc_clean = soup.get_text()
+                    if len(mrq_msg + pad + desc_clean) * 24 < 31000:
+                        mrq_msg += pad + desc_clean
                     else:
                         break
 
-                mrq_msg = wpg_desc.upper()
+                current_feed_text = mrq_msg.upper()
             except Exception as e:
-                debug_msg(f"RSS parsing failed: {e}", 1)
-                mrq_msg = "RSS PROCESSING ERROR"
+                debug_msg(f"RSS fetch error: {e}", 1)
+                current_feed_text = "RSS FEED TEMPORARILY UNAVAILABLE"
 
-        marquee_length = len(mrq_msg)
-        pixels = marquee_length * 24
+        # Initial fetch
+        fetch_rss()
+
+        # Display text in Canvas
         marquee.delete("all")
-        text = marquee.create_text(
-            1, 2, anchor='nw', text=pad + mrq_msg + pad,
-            font=('VCR OSD Mono', 25,), fill="white"
+        text_item = marquee.create_text(
+            1, 2, anchor='nw', text=pad + current_feed_text + pad,
+            font=('VCR OSD Mono', 25), fill="white"
         )
+        pixels = len(current_feed_text) * 24
 
-        def animate_marquee(pos=0):
+        # Smooth scrolling animation
+        def animate(pos=0):
+            marquee.move(text_item, -1, 0)
+            pos += 1
             if pos < pixels + 730:
-                marquee.move(text, -1, 0)
-                marquee.update()
-                root.after(2, animate_marquee, pos + 1)
+                root.after(10, animate, pos)  # adjust speed here
             else:
-                marquee.move(text, pixels + 729, 0)
-                root.after(1000, lambda m=marquee: bottom_marquee(grouptotal, m))
+                # Reset position to scroll again
+                marquee.move(text_item, pixels + 730, 0)
+                root.after(1000, animate, 0)
 
-        animate_marquee()
+        animate()
+
+        # Schedule feed refresh every update_interval (default 5 min)
+        def refresh_feed():
+            fetch_rss()
+            marquee.itemconfig(text_item, text=pad + current_feed_text + pad)
+            root.after(update_interval, refresh_feed)
+
+        root.after(update_interval, refresh_feed)
 
     except Exception as e:
-        debug_msg(f"BOTTOM_MARQUEE-critical error: {str(e)}", 1)
-        try:
-            root.after(30000, lambda m=marquee: bottom_marquee(grouptotal, m))
-        except:
-            pass
+        debug_msg(f"BOTTOM_MARQUEE-critical error: {e}", 1)
+        # Retry in 30s if something crashes
+        root.after(30000, lambda: bottom_marquee(grouptotal, marquee))
+
 
 
 # DEF generate playlist from folder with improved error handling
