@@ -19,7 +19,7 @@ from bs4 import BeautifulSoup
 
 
 prog = "wpg-weather"
-ver = "2.3"
+ver = "2.3.1"
 
 # Global variables for weather data
 real_forecast_time = ""
@@ -231,8 +231,7 @@ def weather_page(PageColour, PageNum):
             # current temperature
             temp_cur = str(safe_get_weather_value(ec_en_wpg.conditions, "temperature", "value", default="--"))
 
-            # forecast highs/lows for today
-            # get today’s forecast from daily_forecasts
+            # Forecast highs/lows
             if hasattr(ec_en_wpg, "daily_forecasts") and len(ec_en_wpg.daily_forecasts) > 0:
                 today_forecast = ec_en_wpg.daily_forecasts[0]
                 temp_high = str(safe_get_weather_value(today_forecast, "high_temp", "value", default="--"))
@@ -240,17 +239,18 @@ def weather_page(PageColour, PageNum):
             else:
                 temp_high = temp_low = "--"
 
+            # Observations
+            observations = getattr(ec_en_wpg, "observations", {}) or {}
 
-            # yesterday’s temps
-            temp_yest_high_val = safe_get_weather_value(ec_en_wpg.observations.get("yesterday", {}), "high_temp", "value", default="--")
-            temp_yest_high = safe_round(temp_yest_high_val)
+            # Yesterday
+            yesterday = observations.get("yesterday", {}) or {}
+            temp_yest_high = safe_round(safe_get_weather_value(yesterday, "high_temp", "value", default="--"))
+            temp_yest_low  = safe_round(safe_get_weather_value(yesterday, "low_temp", "value", default="--"))
 
-            temp_yest_low_val = safe_get_weather_value(ec_en_wpg.observations.get("yesterday", {}), "low_temp", "value", default="--")
-            temp_yest_low = safe_round(temp_yest_low_val)
-
-            # normal temps
-            temp_norm_high = str(safe_get_weather_value(ec_en_wpg.observations.get("normals", {}), "high_temp", "value", default="--"))
-            temp_norm_low  = str(safe_get_weather_value(ec_en_wpg.observations.get("normals", {}), "low_temp", "value", default="--"))
+            # Normals
+            normals = observations.get("normals", {}) or {}
+            temp_norm_high = str(safe_get_weather_value(normals, "high_temp", "value", default="--"))
+            temp_norm_low  = str(safe_get_weather_value(normals, "low_temp", "value", default="--"))
 
 
             # create 8 lines of text   
