@@ -756,14 +756,14 @@ def bottom_marquee(grouptotal, marquee):
                 root.after(2, animate_marquee, pos + 1)
             else:
                 marquee.move(text, pixels + 729, 0)
-                root.after(1000, lambda: bottom_marquee(grouptotal, marquee))
+                root.after(1000, lambda m=marquee: bottom_marquee(grouptotal, m))
 
         animate_marquee()
 
     except Exception as e:
         debug_msg(f"BOTTOM_MARQUEE-critical error: {str(e)}", 1)
         try:
-            root.after(30000, lambda: bottom_marquee(grouptotal, marquee))
+            root.after(30000, lambda m=marquee: bottom_marquee(grouptotal, m))
         except:
             pass
 
@@ -1034,11 +1034,13 @@ def main():
         except Exception as e:
             debug_msg(f"ROOT-background music error: {str(e)}", 1)
 
-        # Bottom Scrolling Text (RSS Feed)
+        # # Bottom Scrolling Text (RSS Feed)
         debug_msg("ROOT-launching bottom_marquee", 1)
         try:
-            # Use root.after to start the marquee after a short delay
-            root.after(2000, lambda: bottom_marquee(grouptotal, marquee))
+            marquee = Canvas(root, height=120, width=580, bg="green")
+            marquee.config(highlightbackground="green")
+            marquee.place(x=80, y=400)
+            root.after(2000, lambda m=marquee: bottom_marquee(grouptotal, m))
         except Exception as e:
             debug_msg(f"ROOT-bottom marquee error: {str(e)}", 1)
 
@@ -1051,14 +1053,6 @@ def main():
             signal_handler(None, None)
         except Exception as e:
             debug_msg(f"ROOT-main loop error: {str(e)}", 1)
-        debug_msg("ROOT-launching bottom_marquee", 1)
-        try:
-            marquee = Canvas(root, height=120, width=580, bg="green")
-            marquee.config(highlightbackground="green")
-            marquee.place(x=80, y=400)
-            root.after(2000, lambda: bottom_marquee(grouptotal, marquee))
-        except Exception as e:
-            debug_msg(f"ROOT-bottom marquee error: {str(e)}", 1)
             
     except Exception as e:
         debug_msg(f"ROOT-critical startup error: {str(e)}", 1)
