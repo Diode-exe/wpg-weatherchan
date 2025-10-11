@@ -1,7 +1,7 @@
 # Retro Winnipeg Weather Channel
 # By probnot - Fixed version with improved error handling
 
-from tkinter import *
+import tkinter as tk
 import time
 import datetime
 import asyncio # for env_canada
@@ -19,7 +19,7 @@ from bs4 import BeautifulSoup
 
 
 prog = "wpg-weather"
-ver = "2.3.1"
+ver = "2.3.2"
 
 # Global variables for weather data
 real_forecast_time = ""
@@ -515,7 +515,7 @@ def weather_page(PageColour, PageNum):
 
         # create the canvas for middle page text
         try:
-            weather = Canvas(root, height=310, width=720, bg=PageColour)
+            weather = tk.Canvas(root, height=310, width=720, bg=PageColour)
             weather.place(x=0, y=85)
             weather.config(highlightbackground=PageColour)
             
@@ -950,7 +950,7 @@ def main():
         signal.signal(signal.SIGTERM, signal_handler)
         
         # setup root
-        root = Tk()
+        root = tk.Tk()
         root.attributes('-fullscreen', False)
         root.geometry("720x480")
         root.config(cursor="none", bg="green")
@@ -958,18 +958,18 @@ def main():
 
         # Clock - Top RIGHT
         debug_msg("ROOT-placing clock", 1)
-        timeText = Label(root, text="", font=("7-Segment Normal", 22), fg="white", bg="green")
+        timeText = tk.Label(root, text="", font=("7-Segment Normal", 22), fg="white", bg="green")
         timeText.place(x=403, y=40)
-        timeColon1 = Label(root, text=":", font=("VCR OSD Mono", 32), fg="white", bg="green")
+        timeColon1 = tk.Label(root, text=":", font=("VCR OSD Mono", 32), fg="white", bg="green")
         timeColon1.place(x=465, y=36)
-        timeColon2 = Label(root, text=":", font=("VCR OSD Mono", 32), fg="white", bg="green")
+        timeColon2 = tk.Label(root, text=":", font=("VCR OSD Mono", 32), fg="white", bg="green")
         timeColon2.place(x=560, y=36)
         debug_msg("ROOT-launching clock updater", 1)
         clock()
 
         # Title - Top LEFT
         debug_msg("ROOT-placing Title Text", 1)
-        Title = Label(root, text="ENVIRONMENT CANADA", font=("VCR OSD Mono", 22, "bold"), fg="white", bg="green")
+        Title = tk.Label(root, text="ENVIRONMENT CANADA", font=("VCR OSD Mono", 22, "bold"), fg="white", bg="green")
         Title.place(x=80, y=40)
 
         # Initialize weather station objects
@@ -1062,7 +1062,7 @@ def main():
         # # Bottom Scrolling Text (RSS Feed)
         debug_msg("ROOT-launching bottom_marquee", 1)
         try:
-            marquee = Canvas(root, height=120, width=580, bg="green")
+            marquee = tk.Canvas(root, height=120, width=580, bg="green")
             marquee.config(highlightbackground="green")
             marquee.place(x=80, y=400)
             root.after(2000, lambda m=marquee: bottom_marquee(grouptotal, m))
@@ -1086,7 +1086,7 @@ def main():
         # Cleanup
         try:
             if 'pygame' in globals():
-                pygame.mixer.quit()
+                pygame().mixer.quit
         except:
             pass
 
