@@ -17,9 +17,18 @@ import sys
 import urllib.request
 from bs4 import BeautifulSoup
 
-
 prog = "wpg-weather"
-ver = "2.3.2"
+ver = "2.3.3"
+
+if os.name == "nt":
+    nt = True
+
+if nt:
+    red = "#6D0000"
+    blue = "#00006D"
+else:
+    red = "6D0000"
+    blue = "00006D"
 
 # Global variables for weather data
 real_forecast_time = ""
@@ -206,10 +215,10 @@ def weather_page(PageColour, PageNum):
             if len(text_forecast) <= 14:
                 debug_msg(("WEATHER_PAGE-display page " + str(PageNum) + " skipped!"),2)
                 PageNum = PageNum + 1 #skip this page
-                if (PageColour == "#00006D"): # blue
-                    PageColour = "#6D0000" # red
+                if (PageColour == "blue"): # blue
+                    PageColour = "#red" # red
                 else:
-                    PageColour = "#00006D" # blue 
+                    PageColour = "blue" # blue 
             else:
                 debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)   
             
@@ -532,10 +541,10 @@ def weather_page(PageColour, PageNum):
             debug_msg(f"WEATHER_PAGE-error creating canvas: {str(e)}", 1)
         
         # Toggle Page Colour between Red & Blue
-        if (PageColour == "#00006D"): # blue
-            PageColour = "#6D0000" # red
+        if (PageColour == "blue"): # blue
+            PageColour = "#red" # red
         else:
-            PageColour = "#00006D" # blue
+            PageColour = "blue" # blue
             
         # Increment Page Number or Reset
         if (PageNum < PageTotal):
@@ -548,10 +557,10 @@ def weather_page(PageColour, PageNum):
     except Exception as e:
         debug_msg(f"WEATHER_PAGE-critical error: {str(e)}", 1)
         # Continue with next page anyway
-        if (PageColour == "#00006D"):
-            PageColour = "#6D0000"
+        if (PageColour == "blue"):
+            PageColour = "#red"
         else:
-            PageColour = "#00006D"
+            PageColour = "blue"
         if (PageNum < 11):
             PageNum = PageNum + 1
         else:
@@ -1031,7 +1040,7 @@ def main():
 
         # Middle Section (Cycling weather pages)
         debug_msg("ROOT-launching weather_page", 1)
-        PageColour = "#00006D"  # blue
+        PageColour = "blue"  # blue
         PageNum = 1
         try:
             weather_page(PageColour, PageNum)
