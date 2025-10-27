@@ -1,5 +1,5 @@
 # Retro Winnipeg Weather Channel
-# By probnot - Fixed version with improved error handling
+# By probnot - Edited by Diode-exe
 
 import tkinter as tk
 import time
@@ -505,8 +505,8 @@ def weather_page(PageColour, PageNum):
             s3 = "3.1 CBC FR.    14 90sTV   54 COMEDY" 
             s4 = "  6 60s/70s    16 TOONS   61 MUSIC"         
             s5 = "6.1 CBC        22 GLOBAL  64 WEATHR"
-            s6 = "7.1 CTV        24 80sTV"
-            s7 = "9.1 GLOBAL   35.1 FAITH"
+            s6 = "7.1 CTV        24 80sTV   68 COPS"
+            s7 = "9.1 GLOBAL   35.1 FAITH   72 SLICE"
             s8 = " 10 CBC        45 CHROMECAST" 
 
         else:
