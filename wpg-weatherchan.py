@@ -215,10 +215,10 @@ def weather_page(PageColour, PageNum):
             if len(text_forecast) <= 14:
                 debug_msg(("WEATHER_PAGE-display page " + str(PageNum) + " skipped!"),2)
                 PageNum = PageNum + 1 #skip this page
-                if (PageColour == "blue"): # blue
-                    PageColour = "#red" # red
+                if (PageColour == blue): # blue
+                    PageColour = red # red
                 else:
-                    PageColour = "blue" # blue 
+                    PageColour = blue # blue 
             else:
                 debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)   
             
@@ -541,10 +541,10 @@ def weather_page(PageColour, PageNum):
             debug_msg(f"WEATHER_PAGE-error creating canvas: {str(e)}", 1)
         
         # Toggle Page Colour between Red & Blue
-        if (PageColour == "blue"): # blue
-            PageColour = "#red" # red
+        if (PageColour == blue): # blue
+            PageColour = red # red
         else:
-            PageColour = "blue" # blue
+            PageColour = blue # blue
             
         # Increment Page Number or Reset
         if (PageNum < PageTotal):
@@ -557,10 +557,10 @@ def weather_page(PageColour, PageNum):
     except Exception as e:
         debug_msg(f"WEATHER_PAGE-critical error: {str(e)}", 1)
         # Continue with next page anyway
-        if (PageColour == "blue"):
-            PageColour = "#red"
+        if (PageColour == blue):
+            PageColour = red
         else:
-            PageColour = "blue"
+            PageColour = blue
         if (PageNum < 11):
             PageNum = PageNum + 1
         else:
@@ -1040,7 +1040,7 @@ def main():
 
         # Middle Section (Cycling weather pages)
         debug_msg("ROOT-launching weather_page", 1)
-        PageColour = "blue"  # blue
+        PageColour = blue  # blue
         PageNum = 1
         try:
             weather_page(PageColour, PageNum)
