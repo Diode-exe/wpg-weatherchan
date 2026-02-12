@@ -1,6 +1,12 @@
 # Retro Winnipeg Weather Channel
 # By probnot - Edited by Diode-exe
 
+import random # for background music
+import os # for background music
+import re # for word shortener
+import signal
+import sys
+import urllib.request
 import tkinter as tk
 import time
 import datetime
@@ -9,26 +15,22 @@ import textwrap # used to format forecast text
 from env_canada import ECWeather
 import feedparser # for RSS feed
 import pygame # for background music
-import random # for background music
-import os # for background music
-import re # for word shortener
-import signal
-import sys
-import urllib.request
 from bs4 import BeautifulSoup
 
-prog = "wpg-weather"
-ver = "2.3.3"
+PROG = "wpg-weather"
+VER = "2.3.3"
 
 if os.name == "nt":
-    nt = True
-
-if nt:
-    red = "#6D0000"
-    blue = "#00006D"
+    NT = True
 else:
-    red = "6D0000"
-    blue = "00006D"
+    NT = False
+
+if NT:
+    RED = "#6D0000"
+    BLUE = "#00006D"
+else:
+    RED = "6D0000"
+    BLUE = "00006D"
 
 # Global variables for weather data
 real_forecast_time = ""
@@ -39,32 +41,32 @@ text_forecast = []
 def clock():
     try:
         # Get current time in 12-hour format with leading zeros
-        current = time.strftime("%I:%M:%S")  
-        
+        current = time.strftime("%I:%M:%S")
+
         # Update the label
         timeText.config(text=current)
-        
+
         # Schedule next update in 1 second
         root.after(1000, clock)
     except Exception as e:
         debug_msg(f"CLOCK-error: {str(e)}", 1)
         root.after(1000, clock)
-    
-# DEF main weather pages 
+
+# DEF main weather pages
 def weather_page(PageColour, PageNum):
     try:
-        # pull in current seconds and minutes -- to be used to cycle the middle section every 30sec   
+        # pull in current seconds and minutes -- to be used to cycle the middle section every 30sec
         linebreak = ['\n']
 
         PageTotal = 11
 
         if (PageNum == 1):
             # ===================== Screen 1 =====================
-            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)             
-            
+            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
+
             # get local timezone to show on screen
             local_tz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
-            
+
             # weather data with safe access
             try:
                 temp_cur = str(safe_get_weather_value(ec_en_wpg.conditions, "temperature", "value", default="--"))
@@ -72,7 +74,7 @@ def weather_page(PageColour, PageNum):
                 temp_low = str(safe_get_weather_value(ec_en_wpg.conditions, "low_temp", "value", default="--"))
                 humidity = str(safe_get_weather_value(ec_en_wpg.conditions, "humidity", "value", default="--"))
                 condition = safe_get_weather_value(ec_en_wpg.conditions, "condition", "value", default="NO DATA")
-                pressure = str(safe_get_weather_value(ec_en_wpg.conditions, "pressure", "value", default="--"))   
+                pressure = str(safe_get_weather_value(ec_en_wpg.conditions, "pressure", "value", default="--"))
                 tendency = safe_get_weather_value(ec_en_wpg.conditions, "tendency", "value", default="STEADY")
                 dewpoint = str(safe_get_weather_value(ec_en_wpg.conditions, "dewpoint", "value", default="--"))
                 uv_index_val = safe_get_weather_value(ec_en_wpg.conditions, "uv_index", "value", default="--")
@@ -85,7 +87,7 @@ def weather_page(PageColour, PageNum):
                 except (ValueError, TypeError):
                     uv_index_val = None
 
-                
+
                 # check severity of uv index
                 if uv_index_val is not None:
                     if uv_index_val <= 2:
@@ -100,34 +102,34 @@ def weather_page(PageColour, PageNum):
                         uv_cat = "EXTRM"
                 else:
                     uv_cat = ""
-                
+
                 # check if windchill or humidex is present
                 windchill_val = safe_get_weather_value(ec_en_wpg.conditions, "wind_chill", "value", default="--")
                 humidex_val = safe_get_weather_value(ec_en_wpg.conditions, "humidex", "value", default="--")
-                
+
                 if windchill_val not in [None, "--"]:
                     windchildex = "WIND CHILL " + str(windchill_val) + " C"
                 elif humidex_val not in [None, "--"]:
                     windchildex = "HUMIDEX " + str(humidex_val) + " C       "
                 else:
                     windchildex = ""
-                
+
                 # check if there is wind
                 wind_dir_val = safe_get_weather_value(ec_en_wpg.conditions, "wind_dir", "value", default="--")
                 wind_spd_val = safe_get_weather_value(ec_en_wpg.conditions, "wind_speed", "value", default="--")
-                
+
                 if wind_dir_val is not None and wind_spd_val is not None:
                     windstr = "WIND " + str(wind_dir_val) + " " + str(wind_spd_val) + " KMH"
                 else:
                     windstr = "NO WIND"
-                        
+
                 # check visibility
                 visibility_val = safe_get_weather_value(ec_en_wpg.conditions, "visibility", "value", default="--")
                 if visibility_val is not None:
                     visibstr = "VISBY " + str(visibility_val).rjust(5," ") + " KM         "
                 else:
                     visibstr = "VISBY    -- KM         "
-            
+
             except Exception as e:
                 debug_msg(f"WEATHER_PAGE-error getting weather data: {str(e)}", 1)
                 # Set default values
@@ -136,9 +138,9 @@ def weather_page(PageColour, PageNum):
                 tendency = "STEADY"
                 windchildex = windstr = visibstr = ""
                 uv_cat = ""
-         
-            # create 8 lines of text     
-            s1 = ("WINNIPEG " + real_forecast_time + " " + str(local_tz) + "  " + real_forecast_date.upper()).center(35," ")
+
+            # create 8 lines of text
+            s1 = ("WINNIPEG " + real_forecast_time + " " + str(local_tz))
             s2 = "TEMP  " + temp_cur.rjust(5," ") + " C                "
             s2 = s2[0:24] + " HIGH " + temp_high.rjust(3," ") + " C"
             s3 = word_short(condition,24) + "                         "
@@ -147,21 +149,21 @@ def weather_page(PageColour, PageNum):
             s5 = "HUMID  " + humidity.rjust(5," ") + " %         "
             s5 = s5[0:18] + windstr.rjust(17," ")
             s6 = visibstr[0:18] + windchildex.rjust(17," ")
-            s7 = "DEW   " + dewpoint.rjust(5," ") + " C         " 
+            s7 = "DEW   " + dewpoint.rjust(5," ") + " C         "
             s7 = s7[0:18] + ("UV INDEX " + uv_index + " " + uv_cat).rjust(17," ")
             s8 = ("PRESSURE " + pressure + " KPA AND " + tendency.upper()).center(35," ")
 
         elif (PageNum == 2):
             # ===================== Screen 2 =====================
-            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)  
+            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
             try:
                 # pull text forecasts from env_canada with safe access
                 current_summary = safe_get_weather_value(ec_en_wpg.conditions, "text_summary", "value", "NO FORECAST AVAILABLE")
                 wsum_day1 = textwrap.wrap(current_summary.upper(), 35)
-                
+
                 wsum_day2 = wsum_day3 = wsum_day4 = wsum_day5 = wsum_day6 = []
-                
+
                 try:
                     if hasattr(ec_en_wpg, 'daily_forecasts') and len(ec_en_wpg.daily_forecasts) > 1:
                         for i, day_offset in enumerate([1,2,3,4,5], 1):
@@ -176,15 +178,15 @@ def weather_page(PageColour, PageNum):
                                 elif i == 5: wsum_day6 = forecast_text
                 except Exception as e:
                     debug_msg(f"WEATHER_PAGE-error getting daily forecasts: {str(e)}", 1)
-                
+
                 # build text_forecast string
                 global text_forecast
                 text_forecast = wsum_day1 + linebreak + wsum_day2 + linebreak + wsum_day3 + linebreak + wsum_day4 + linebreak + wsum_day5 + linebreak + wsum_day6
-            
+
             except Exception as e:
                 debug_msg(f"WEATHER_PAGE-error building forecasts: {str(e)}", 1)
                 text_forecast = ["NO FORECAST DATA AVAILABLE"]
-        
+
             # create 8 lines of text
             s1 = "WINNIPEG CITY FORECAST".center(35," ")
             s2 = (text_forecast[0]).center(35," ") if len(text_forecast) >= 1 else " "
@@ -197,8 +199,8 @@ def weather_page(PageColour, PageNum):
 
         elif (PageNum == 3):
             # ===================== Screen 3 =====================
-            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2) 
-            
+            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
+
             # create 8 lines of text
             s1 = "WINNIPEG CITY FORECAST CONT'D".center(35," ")
             s2 = (text_forecast[7]).center(35," ") if len(text_forecast) >= 8 else " "
@@ -207,7 +209,7 @@ def weather_page(PageColour, PageNum):
             s5 = (text_forecast[10]).center(35," ") if len(text_forecast) >= 11 else " "
             s6 = (text_forecast[11]).center(35," ") if len(text_forecast) >= 12 else " "
             s7 = (text_forecast[12]).center(35," ") if len(text_forecast) >= 13 else " "
-            s8 = (text_forecast[13]).center(35," ") if len(text_forecast) >= 14 else " " 
+            s8 = (text_forecast[13]).center(35," ") if len(text_forecast) >= 14 else " "
 
         elif (PageNum == 4):
             # ===================== Screen 4 =====================
@@ -215,27 +217,27 @@ def weather_page(PageColour, PageNum):
             if len(text_forecast) <= 14:
                 debug_msg(("WEATHER_PAGE-display page " + str(PageNum) + " skipped!"),2)
                 PageNum = PageNum + 1 #skip this page
-                if (PageColour == blue): # blue
-                    PageColour = red # red
+                if (PageColour == BLUE): # BLUE
+                    PageColour = RED # RED
                 else:
-                    PageColour = blue # blue 
+                    PageColour = BLUE # BLUE
             else:
-                debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)   
-            
-                # create 8 lines of text       
+                debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
+
+                # create 8 lines of text
                 s1 = "WINNIPEG CITY FORECAST CONT'D".center(35," ")
-                s2 = (text_forecast[14]).center(35," ") if len(text_forecast) >= 15 else " "       
-                s3 = (text_forecast[15]).center(35," ") if len(text_forecast) >= 16 else " "        
+                s2 = (text_forecast[14]).center(35," ") if len(text_forecast) >= 15 else " "
+                s3 = (text_forecast[15]).center(35," ") if len(text_forecast) >= 16 else " "
                 s4 = (text_forecast[16]).center(35," ") if len(text_forecast) >= 17 else " "
                 s5 = (text_forecast[17]).center(35," ") if len(text_forecast) >= 18 else " "
                 s6 = (text_forecast[18]).center(35," ") if len(text_forecast) >= 19 else " "
                 s7 = (text_forecast[19]).center(35," ") if len(text_forecast) >= 20 else " "
-                s8 = (text_forecast[20]).center(35," ") if len(text_forecast) >= 21 else " "                  
-    
+                s8 = (text_forecast[20]).center(35," ") if len(text_forecast) >= 21 else " "
+
         elif (PageNum == 5):
             # ===================== Screen 5 =====================
-            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)        
-     
+            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
+
             # weather data with safe access
             # current temperature
             temp_cur = str(safe_get_weather_value(ec_en_wpg.conditions, "temperature", "value", default="--"))
@@ -262,7 +264,7 @@ def weather_page(PageColour, PageNum):
             temp_norm_low  = str(safe_get_weather_value(normals, "low_temp", "value", default="--"))
 
 
-            # create 8 lines of text   
+            # create 8 lines of text
             s1 = ("TEMPERATURE STATISTICS FOR WINNIPEG").center(35," ")
             s2 = "       CURRENT " + temp_cur.rjust(5," ") + " C  "
             s3 = ""
@@ -271,19 +273,19 @@ def weather_page(PageColour, PageNum):
             s6 = "    YESTERDAY   " + temp_yest_low.rjust(3," ") + " C  " + temp_yest_high.rjust(3," ") + " C"
             s7 = "       NORMAL   " + temp_norm_low.rjust(3," ") + " C  " + temp_norm_high.rjust(3," ") + " C"
             s8 = ""
-    
-        elif (PageNum == 6):    
+
+        elif (PageNum == 6):
             # ===================== Screen 6 =====================
             debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
             # Regional temperatures with safe access
             temp_brn = str(safe_get_weather_value(ec_en_brn.conditions, "temperature", "value", default="--"))
             temp_thm = str(safe_get_weather_value(ec_en_thm.conditions, "temperature", "value", default="--"))
-            temp_tps = str(safe_get_weather_value(ec_en_tps.conditions, "temperature", "value", default="--"))    
-            temp_fln = str(safe_get_weather_value(ec_en_fln.conditions, "temperature", "value", default="--"))  
-            temp_chu = str(safe_get_weather_value(ec_en_chu.conditions, "temperature", "value", default="--")) 
-            temp_ken = str(safe_get_weather_value(ec_en_ken.conditions, "temperature", "value", default="--"))  
-            temp_tby = str(safe_get_weather_value(ec_en_tby.conditions, "temperature", "value", default="--"))   
+            temp_tps = str(safe_get_weather_value(ec_en_tps.conditions, "temperature", "value", default="--"))
+            temp_fln = str(safe_get_weather_value(ec_en_fln.conditions, "temperature", "value", default="--"))
+            temp_chu = str(safe_get_weather_value(ec_en_chu.conditions, "temperature", "value", default="--"))
+            temp_ken = str(safe_get_weather_value(ec_en_ken.conditions, "temperature", "value", default="--"))
+            temp_tby = str(safe_get_weather_value(ec_en_tby.conditions, "temperature", "value", default="--"))
 
             cond_brn = safe_get_weather_value(ec_en_brn.conditions, "condition", "value", default="NO DATA")
             cond_thm = safe_get_weather_value(ec_en_thm.conditions, "condition", "value", default="NO DATA")
@@ -292,8 +294,8 @@ def weather_page(PageColour, PageNum):
             cond_chu = safe_get_weather_value(ec_en_chu.conditions, "condition", "value", default="NO DATA")
             cond_ken = safe_get_weather_value(ec_en_ken.conditions, "condition", "value", default="NO DATA")
             cond_tby = safe_get_weather_value(ec_en_tby.conditions, "condition", "value", default="NO DATA")
-            
-            # create 8 lines of text   
+
+            # create 8 lines of text
             s1=(real_forecast_date.upper()).center(35," ")
             s2="BRANDON     " + temp_brn.rjust(5," ") + " C    "
             s2= s2[0:20] + word_short(cond_brn,13)[0:13]
@@ -312,16 +314,16 @@ def weather_page(PageColour, PageNum):
 
         elif (PageNum == 7):
             # ===================== Screen 7 =====================
-            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2) 
-            
+            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
+
             # Western Canada temperatures with safe access
             temp_vic = str(safe_get_weather_value(ec_en_vic.conditions, "temperature", "value", default="--"))
             temp_van = str(safe_get_weather_value(ec_en_van.conditions, "temperature", "value", default="--"))
-            temp_edm = str(safe_get_weather_value(ec_en_edm.conditions, "temperature", "value", default="--"))    
-            temp_cal = str(safe_get_weather_value(ec_en_cal.conditions, "temperature", "value", default="--"))  
-            temp_ssk = str(safe_get_weather_value(ec_en_ssk.conditions, "temperature", "value", default="--"))  
-            temp_reg = str(safe_get_weather_value(ec_en_reg.conditions, "temperature", "value", default="--"))   
-            temp_wht = str(safe_get_weather_value(ec_en_wht.conditions, "temperature", "value", default="--")) 
+            temp_edm = str(safe_get_weather_value(ec_en_edm.conditions, "temperature", "value", default="--"))
+            temp_cal = str(safe_get_weather_value(ec_en_cal.conditions, "temperature", "value", default="--"))
+            temp_ssk = str(safe_get_weather_value(ec_en_ssk.conditions, "temperature", "value", default="--"))
+            temp_reg = str(safe_get_weather_value(ec_en_reg.conditions, "temperature", "value", default="--"))
+            temp_wht = str(safe_get_weather_value(ec_en_wht.conditions, "temperature", "value", default="--"))
 
             cond_vic = safe_get_weather_value(ec_en_vic.conditions, "condition", "value", default="NO DATA")
             cond_van = safe_get_weather_value(ec_en_van.conditions, "condition", "value", default="NO DATA")
@@ -330,8 +332,8 @@ def weather_page(PageColour, PageNum):
             cond_ssk = safe_get_weather_value(ec_en_ssk.conditions, "condition", "value", default="NO DATA")
             cond_reg = safe_get_weather_value(ec_en_reg.conditions, "condition", "value", default="NO DATA")
             cond_wht = safe_get_weather_value(ec_en_wht.conditions, "condition", "value", default="NO DATA")
-            
-            # create 8 lines of text    
+
+            # create 8 lines of text
             s1=(real_forecast_date.upper()).center(35," ")
             s2="VICTORIA    " + temp_vic.rjust(5," ") + " C     "
             s2= s2[0:20] + word_short(cond_vic,13)[0:13]
@@ -347,19 +349,19 @@ def weather_page(PageColour, PageNum):
             s7= s7[0:20] + word_short(cond_reg,13)[0:13]
             s8="WHITEHORSE  " + temp_wht.rjust(5," ") + " C     "
             s8= s8[0:20] + word_short(cond_wht,13)[0:13]
-                 
-        elif (PageNum == 8):   
+
+        elif (PageNum == 8):
             # ===================== Screen 8 =====================
             debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
-            
+
             # Eastern Canada temperatures with safe access
             temp_tor = str(safe_get_weather_value(ec_en_tor.conditions, "temperature", "value", default="--"))
             temp_otw = str(safe_get_weather_value(ec_en_otw.conditions, "temperature", "value", default="--"))
-            temp_qbc = str(safe_get_weather_value(ec_en_qbc.conditions, "temperature", "value", default="--"))    
-            temp_mtl = str(safe_get_weather_value(ec_en_mtl.conditions, "temperature", "value", default="--"))  
-            temp_frd = str(safe_get_weather_value(ec_en_frd.conditions, "temperature", "value", default="--"))  
-            temp_hal = str(safe_get_weather_value(ec_en_hal.conditions, "temperature", "value", default="--"))   
-            temp_stj = str(safe_get_weather_value(ec_en_stj.conditions, "temperature", "value", default="--")) 
+            temp_qbc = str(safe_get_weather_value(ec_en_qbc.conditions, "temperature", "value", default="--"))
+            temp_mtl = str(safe_get_weather_value(ec_en_mtl.conditions, "temperature", "value", default="--"))
+            temp_frd = str(safe_get_weather_value(ec_en_frd.conditions, "temperature", "value", default="--"))
+            temp_hal = str(safe_get_weather_value(ec_en_hal.conditions, "temperature", "value", default="--"))
+            temp_stj = str(safe_get_weather_value(ec_en_stj.conditions, "temperature", "value", default="--"))
 
             cond_tor = safe_get_weather_value(ec_en_tor.conditions, "condition", "value", default="NO DATA")
             cond_otw = safe_get_weather_value(ec_en_otw.conditions, "condition", "value", default="NO DATA")
@@ -368,8 +370,8 @@ def weather_page(PageColour, PageNum):
             cond_frd = safe_get_weather_value(ec_en_frd.conditions, "condition", "value", default="NO DATA")
             cond_hal = safe_get_weather_value(ec_en_hal.conditions, "condition", "value", default="NO DATA")
             cond_stj = safe_get_weather_value(ec_en_stj.conditions, "condition", "value", default="NO DATA")
-            
-            # create 8 lines of text    
+
+            # create 8 lines of text
             s1=(real_forecast_date.upper()).center(35," ")
             s2="TORONTO     " + temp_tor.rjust(5," ") + " C    "
             s2= s2[0:20] + word_short(cond_tor,13)[0:13]
@@ -385,7 +387,7 @@ def weather_page(PageColour, PageNum):
             s7= s7[0:20] + word_short(cond_hal,13)[0:13]
             s8="ST.JOHN'S   " + temp_stj.rjust(5," ") + " C     "
             s8= s8[0:20] + word_short(cond_stj,13)[0:13]
-    
+
         elif (PageNum == 9):
             # ===================== Screen 9 =====================
             debug_msg(("WEATHER_PAGE-display page " + str(PageNum)), 2)
@@ -504,19 +506,19 @@ def weather_page(PageColour, PageNum):
             s8 = f" PREV DAY WINNIPEG  {yest_precip.rjust(7,' ')}"
 
 
-        elif (PageNum == 11):    
+        elif (PageNum == 11):
             # ===================== Screen 11 =====================
-            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)         
-          
+            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
+
             # create 8 lines of text
             s1 = "==========CHANNEL LISTING=========="
-            s2 = "  2 SIMPSNS  13.1 CITY    50 SECUR"    
-            s3 = "3.1 CBC FR.    14 90sTV   54 COMEDY" 
-            s4 = "  6 60s/70s    16 TOONS   61 MUSIC"         
+            s2 = "  2 SIMPSNS  13.1 CITY    50 SECUR"
+            s3 = "3.1 CBC FR.    14 90sTV   54 COMEDY"
+            s4 = "  6 60s/70s    16 TOONS   61 MUSIC"
             s5 = "6.1 CBC        22 GLOBAL  64 WEATHR"
             s6 = "7.1 CTV        24 80sTV   68 COPS"
             s7 = "9.1 GLOBAL   35.1 FAITH   72 SLICE"
-            s8 = " 10 CBC        45 CHROMECAST" 
+            s8 = " 10 CBC        45 CHROMECAST"
 
         else:
             # Default fallback page
@@ -527,7 +529,7 @@ def weather_page(PageColour, PageNum):
             weather = tk.Canvas(root, height=310, width=720, bg=PageColour)
             weather.place(x=0, y=85)
             weather.config(highlightbackground=PageColour)
-            
+
             # place the 8 lines of text
             weather.create_text(80, 17, anchor='nw', text=s1, font=('VCR OSD Mono', 21, "bold"), fill="white")
             weather.create_text(80, 60, anchor='nw', text=s2, font=('VCR OSD Mono', 21,), fill="white")
@@ -535,32 +537,32 @@ def weather_page(PageColour, PageNum):
             weather.create_text(80, 130, anchor='nw', text=s4, font=('VCR OSD Mono', 21,), fill="white")
             weather.create_text(80, 165, anchor='nw', text=s5, font=('VCR OSD Mono', 21,), fill="white")
             weather.create_text(80, 200, anchor='nw', text=s6, font=('VCR OSD Mono', 21,), fill="white")
-            weather.create_text(80, 235, anchor='nw', text=s7, font=('VCR OSD Mono', 21,), fill="white") 
-            weather.create_text(80, 270, anchor='nw', text=s8, font=('VCR OSD Mono', 21,), fill="white") 
+            weather.create_text(80, 235, anchor='nw', text=s7, font=('VCR OSD Mono', 21,), fill="white")
+            weather.create_text(80, 270, anchor='nw', text=s8, font=('VCR OSD Mono', 21,), fill="white")
         except Exception as e:
             debug_msg(f"WEATHER_PAGE-error creating canvas: {str(e)}", 1)
-        
-        # Toggle Page Colour between Red & Blue
-        if (PageColour == blue): # blue
-            PageColour = red # red
+
+        # Toggle Page Colour between RED & BLUE
+        if (PageColour == BLUE): # BLUE
+            PageColour = RED # RED
         else:
-            PageColour = blue # blue
-            
+            PageColour = BLUE # BLUE
+
         # Increment Page Number or Reset
         if (PageNum < PageTotal):
             PageNum = PageNum + 1
         elif (PageNum >= PageTotal):
             PageNum = 1
-        
+
         root.after(20000, weather_page, PageColour, PageNum) # re-run every 20sec from program launch
-        
+
     except Exception as e:
         debug_msg(f"WEATHER_PAGE-critical error: {str(e)}", 1)
         # Continue with next page anyway
-        if (PageColour == blue):
-            PageColour = red
+        if (PageColour == BLUE):
+            PageColour = RED
         else:
-            PageColour = blue
+            PageColour = BLUE
         if (PageNum < 11):
             PageNum = PageNum + 1
         else:
@@ -580,7 +582,7 @@ def safe_get_weather_value(weather_obj, *keys, default="NO DATA"):
     except Exception as e:
         debug_msg(f"SAFE_GET_WEATHER_VALUE-error accessing {keys}: {str(e)}", 2)
         return default
-    
+
 #DEF Safe round so that TypeErrors don't occur in the assignments
 def safe_round(value):
     try:
@@ -597,10 +599,10 @@ async def weather_update_async(group):
     # used to calculate update time
     t1 = datetime.datetime.now().timestamp()
     timechk = t1 - updt_tstp[group] if group > 0 else 1801  # Force update for group 0
-    
+
     if (timechk > 1800) or (group == 0):
         debug_msg(f"WEATHER_UPDATE_ASYNC-starting update for group {group}", 1)
-        
+
         async def update_single_station(station, name, timeout=15):
             """Update a single weather station with timeout"""
             try:
@@ -628,23 +630,23 @@ async def weather_update_async(group):
                     (ec_en_ken, "Kenora"),
                     (ec_en_tby, "Thunder Bay")
                 ]
-                
+
                 for station, name in stations:
                     await update_single_station(station, name)
                     await asyncio.sleep(0.5)  # Small delay between requests
-                
+
                 # Update time strings
                 real_forecast_time = time.strftime("%I %p").lstrip("0")
-                if real_forecast_time == "12 PM": 
+                if real_forecast_time == "12 PM":
                     real_forecast_time = "NOON"
                 real_forecast_date = datetime.datetime.now().strftime("%a %b %d/%Y")
-                
+
                 if group == 0:
                     for i in range(1, 4):
                         updt_tstp[i] = datetime.datetime.now().timestamp()
                 else:
                     updt_tstp[group] = datetime.datetime.now().timestamp()
-            
+
             if (group == 0 or group == 2):
                 debug_msg("WEATHER_UPDATE_ASYNC-updating Western Canada stations", 1)
                 stations = [
@@ -656,15 +658,15 @@ async def weather_update_async(group):
                     (ec_en_reg, "Regina"),
                     (ec_en_wht, "Whitehorse")
                 ]
-                
+
                 for station, name in stations:
                     await update_single_station(station, name)
                     await asyncio.sleep(0.5)
-                
+
                 real_forecast_date = datetime.datetime.now().strftime("%a %b %d/%Y")
                 if group != 0:
                     updt_tstp[group] = datetime.datetime.now().timestamp()
-        
+
             if (group == 0 or group == 3):
                 debug_msg("WEATHER_UPDATE_ASYNC-updating Eastern Canada stations", 1)
                 stations = [
@@ -676,11 +678,11 @@ async def weather_update_async(group):
                     (ec_en_hal, "Halifax"),
                     (ec_en_stj, "St. John's")
                 ]
-                
+
                 for station, name in stations:
                     await update_single_station(station, name)
                     await asyncio.sleep(0.5)
-                
+
                 real_forecast_date = datetime.datetime.now().strftime("%a %b %d/%Y")
                 if group != 0:
                     updt_tstp[group] = datetime.datetime.now().timestamp()
@@ -688,7 +690,7 @@ async def weather_update_async(group):
             # calculate time it took to update
             t = datetime.datetime.now().timestamp() - t1
             debug_msg(f"WEATHER_UPDATE_ASYNC-group {group} completed in {round(t,2)} seconds", 1)
-            
+
         except Exception as e:
             debug_msg(f"WEATHER_UPDATE_ASYNC-critical error in group {group}: {str(e)}", 1)
             # Set fallback values
@@ -697,7 +699,7 @@ async def weather_update_async(group):
 
             if not real_forecast_date:
                 real_forecast_date = datetime.datetime.now().strftime("%a %b %d/%Y")
-                
+
     else:
         debug_msg(f"WEATHER_UPDATE_ASYNC-group {group} skipped, only {round(timechk//60)} min elapsed", 1)
 
@@ -719,7 +721,7 @@ def weather_update(group):
 def bottom_marquee(grouptotal, marquee, update_interval=300000):
     """
     Displays a continuously scrolling RSS feed in the given marquee Canvas.
-    
+
     Parameters:
     - grouptotal: number of weather groups (not used directly here, kept for compatibility)
     - marquee: Tkinter Canvas object to display the scrolling text
@@ -807,15 +809,15 @@ def playlist_generator(musicpath):
     """Generate music playlist with error handling"""
     try:
         debug_msg("PLAYLIST_GENERATOR-searching for music files...", 1)
-        
+
         if not os.path.exists(musicpath):
             debug_msg(f"PLAYLIST_GENERATOR-creating music directory: {musicpath}", 1)
             os.makedirs(musicpath)
             return []
-        
+
         filelist = os.listdir(musicpath)
         allFiles = list()
-        
+
         for entry in filelist:
             try:
                 fullPath = os.path.join(musicpath, entry)
@@ -826,10 +828,10 @@ def playlist_generator(musicpath):
             except Exception as e:
                 debug_msg(f"PLAYLIST_GENERATOR-error processing {entry}: {str(e)}", 2)
                 continue
-        
+
         debug_msg(f"PLAYLIST_GENERATOR-found {len(allFiles)} music files", 1)
         return allFiles
-        
+
     except Exception as e:
         debug_msg(f"PLAYLIST_GENERATOR-error: {str(e)}", 1)
         return []
@@ -842,12 +844,12 @@ def music_player(songNumber, playlist, musicpath):
             debug_msg("MUSIC_PLAYER-no music files found, skipping", 1)
             root.after(10000, music_player, 0, playlist, musicpath)
             return
-        
+
         if not pygame.mixer.get_init():
             debug_msg("MUSIC_PLAYER-pygame mixer not initialized", 1)
             root.after(10000, music_player, songNumber, playlist, musicpath)
             return
-        
+
         if ((not pygame.mixer.music.get_busy()) and (songNumber < len(playlist))):
             try:
                 debug_msg(f"MUSIC_PLAYER-playing song {os.path.basename(playlist[songNumber])}", 1)
@@ -857,14 +859,14 @@ def music_player(songNumber, playlist, musicpath):
             except Exception as e:
                 debug_msg(f"MUSIC_PLAYER-error playing {playlist[songNumber]}: {str(e)}", 1)
                 songNumber = songNumber + 1  # Skip problematic file
-                
+
         elif ((not pygame.mixer.music.get_busy()) and (songNumber >= len(playlist))):
             debug_msg("MUSIC_PLAYER-playlist complete, re-shuffling...", 1)
             songNumber = 0
-            random.shuffle(playlist)   
+            random.shuffle(playlist)
 
         root.after(2000, music_player, songNumber, playlist, musicpath)
-        
+
     except Exception as e:
         debug_msg(f"MUSIC_PLAYER-error: {str(e)}", 1)
         root.after(10000, music_player, songNumber, playlist, musicpath)
@@ -875,9 +877,9 @@ def word_short(phrase, length):
     try:
         if not phrase:
             return "NO DATA"
-        
+
         # dictionary of shortened words
-        dict_short = {                    
+        dict_short = {
             "BECOMING" : "BCMG",
             "SCATTERED" : "SCTD",
             "PARTLY" : "PTLY",
@@ -895,20 +897,20 @@ def word_short(phrase, length):
             "HEAVY" : "HVY",
             "BLOWING" : "BLWNG"
         }
-        
+
         phrase = str(phrase).upper()
-        
+
         if len(phrase) > length:
             if phrase == "A MIX OF SUN AND CLOUD":
                 phrase = "SUN CLOUD MIX"
-            
+
             for key, value in dict_short.items():
                 phrase = re.sub(key, value, phrase)
-            
+
             debug_msg(f"WORD_SHORT-phrase shortened to {phrase}", 2)
-        
+
         return phrase[:length] if len(phrase) > length else phrase
-        
+
     except Exception as e:
         debug_msg(f"WORD_SHORT-error: {str(e)}", 2)
         return str(phrase)[:length] if phrase else "ERROR"
@@ -919,17 +921,17 @@ def debug_msg(message, priority):
     try:
         debugmode = 2  # 0=disabled, 1=normal, 2=verbose
         timestamp = 2  # 0=none, 1=time, 2=date+time
-        
+
         if timestamp == 1:
             timestr = time.strftime("%H:%M.")
         elif timestamp == 2:
             timestr = time.strftime("%Y%m%d-%H:%M.")
         else:
             timestr = ""
-            
+
         if ((debugmode > 0) and (priority <= debugmode)):
-            print(f"{timestr}{prog}.{ver}.{message}")
-            
+            print(f"{timestr}{PROG}.{VER}.{message}")
+
     except Exception as e:
         print(f"DEBUG_MSG-error: {str(e)}")
 
@@ -952,12 +954,12 @@ def main():
     global ec_en_wpg, ec_en_brn, ec_en_thm, ec_en_tps, ec_en_chu, ec_en_fln, ec_en_ken, ec_en_tby
     global ec_en_vic, ec_en_van, ec_en_edm, ec_en_cal, ec_en_ssk, ec_en_reg, ec_en_wht
     global ec_en_tor, ec_en_otw, ec_en_qbc, ec_en_mtl, ec_en_frd, ec_en_hal, ec_en_stj
-    
+
     try:
         # Setup signal handlers
         signal.signal(signal.SIGINT, signal_handler)
         signal.signal(signal.SIGTERM, signal_handler)
-        
+
         # setup root
         root = tk.Tk()
         root.attributes('-fullscreen', False)
@@ -1011,9 +1013,9 @@ def main():
             ec_en_frd = ECWeather(station_id='NB/s0000250', language='english')
             ec_en_hal = ECWeather(station_id='NS/s0000318', language='english')
             ec_en_stj = ECWeather(station_id='NL/s0000280', language='english')
-            
+
             debug_msg("ROOT-weather stations initialized successfully", 1)
-            
+
         except Exception as e:
             debug_msg(f"ROOT-error initializing weather stations: {str(e)}", 1)
             # Continue anyway - the safe_get_weather_value function will handle missing data
@@ -1040,7 +1042,7 @@ def main():
 
         # Middle Section (Cycling weather pages)
         debug_msg("ROOT-launching weather_page", 1)
-        PageColour = blue  # blue
+        PageColour = BLUE  # BLUE
         PageNum = 1
         try:
             weather_page(PageColour, PageNum)
@@ -1087,7 +1089,7 @@ def main():
             signal_handler(None, None)
         except Exception as e:
             debug_msg(f"ROOT-main loop error: {str(e)}", 1)
-            
+
     except Exception as e:
         debug_msg(f"ROOT-critical startup error: {str(e)}", 1)
         sys.exit(1)

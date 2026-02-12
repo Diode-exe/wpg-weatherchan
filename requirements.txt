@@ -1,3 +1,4 @@
-env_canada (and its listed requirements)
-pygame
-feedparser
+beautifulsoup4==4.14.3
+env_canada==0.12.4
+feedparser==6.0.12
+pygame==2.6.1
