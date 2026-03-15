@@ -419,7 +419,8 @@ def weather_page(PageColour, PageNum):
                             else:
                                 try:
                                     temp_str = str(round(float(temp)))
-                                except:
+                                except Exception as e:
+                                    debug_msg(f"WEATHER_PAGE-error converting temperature: {str(e)}", 1)
                                     temp_str = "--"
                             hrly_temp.append(temp_str)
 
