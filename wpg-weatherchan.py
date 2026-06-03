@@ -29,8 +29,8 @@ if NT:
     RED = "#6D0000"
     BLUE = "#00006D"
 else:
-    RED = "6D0000"
-    BLUE = "00006D"
+    RED = "#6D0000"
+    BLUE = "#00006D"
 
 # Global variables for weather data
 real_forecast_time = ""
