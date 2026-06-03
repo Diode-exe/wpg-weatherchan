@@ -1,5 +1,5 @@
-VCR_OSD_MONO_1.001.ttf
-*.ttf
+# VCR_OSD_MONO_1.001.ttf
+# *.ttf
 .venv/
 venv/
 __pycache__/
