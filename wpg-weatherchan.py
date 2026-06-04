@@ -60,7 +60,7 @@ def weather_page(PageColour, PageNum):
 
         PageTotal = 11
 
-        if (PageNum == 1):
+        if PageNum == 1:
             # ===================== Screen 1 =====================
             debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
@@ -93,7 +93,7 @@ def weather_page(PageColour, PageNum):
                     if uv_index_val <= 2:
                         uv_cat = "LOW"
                     elif uv_index_val <= 5:
-                        uv_cat = "MODERT"
+                        uv_cat = "MODERATE"
                     elif uv_index_val <= 7:
                         uv_cat = "HIGH"
                     elif uv_index_val <= 10:
@@ -153,7 +153,7 @@ def weather_page(PageColour, PageNum):
             s7 = s7[0:18] + ("UV INDEX " + uv_index + " " + uv_cat).rjust(17," ")
             s8 = ("PRESSURE " + pressure + " KPA AND " + tendency.upper()).center(35," ")
 
-        elif (PageNum == 2):
+        elif PageNum == 2:
             # ===================== Screen 2 =====================
             debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
@@ -197,7 +197,7 @@ def weather_page(PageColour, PageNum):
             s7 = (text_forecast[5]).center(35," ") if len(text_forecast) >= 6 else " "
             s8 = (text_forecast[6]).center(35," ") if len(text_forecast) >= 7 else " "
 
-        elif (PageNum == 3):
+        elif PageNum == 3:
             # ===================== Screen 3 =====================
             debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
@@ -211,13 +211,13 @@ def weather_page(PageColour, PageNum):
             s7 = (text_forecast[12]).center(35," ") if len(text_forecast) >= 13 else " "
             s8 = (text_forecast[13]).center(35," ") if len(text_forecast) >= 14 else " "
 
-        elif (PageNum == 4):
+        elif PageNum == 4:
             # ===================== Screen 4 =====================
             # check if this page is needed
             if len(text_forecast) <= 14:
                 debug_msg(("WEATHER_PAGE-display page " + str(PageNum) + " skipped!"),2)
                 PageNum = PageNum + 1 #skip this page
-                if (PageColour == BLUE): # BLUE
+                if PageColour == BLUE: # BLUE
                     PageColour = RED # RED
                 else:
                     PageColour = BLUE # BLUE
@@ -234,7 +234,7 @@ def weather_page(PageColour, PageNum):
                 s7 = (text_forecast[19]).center(35," ") if len(text_forecast) >= 20 else " "
                 s8 = (text_forecast[20]).center(35," ") if len(text_forecast) >= 21 else " "
 
-        elif (PageNum == 5):
+        elif PageNum == 5:
             # ===================== Screen 5 =====================
             debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
@@ -274,7 +274,7 @@ def weather_page(PageColour, PageNum):
             s7 = "       NORMAL   " + temp_norm_low.rjust(3," ") + " C  " + temp_norm_high.rjust(3," ") + " C"
             s8 = ""
 
-        elif (PageNum == 6):
+        elif PageNum == 6:
             # ===================== Screen 6 =====================
             debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
@@ -312,7 +312,7 @@ def weather_page(PageColour, PageNum):
             s8="THUNDER BAY " + temp_tby.rjust(5," ") + " C     "
             s8= s8[0:20] + word_short(cond_tby,13)[0:13]
 
-        elif (PageNum == 7):
+        elif PageNum == 7:
             # ===================== Screen 7 =====================
             debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
@@ -350,7 +350,7 @@ def weather_page(PageColour, PageNum):
             s8="WHITEHORSE  " + temp_wht.rjust(5," ") + " C     "
             s8= s8[0:20] + word_short(cond_wht,13)[0:13]
 
-        elif (PageNum == 8):
+        elif PageNum == 8:
             # ===================== Screen 8 =====================
             debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
@@ -388,7 +388,7 @@ def weather_page(PageColour, PageNum):
             s8="ST.JOHN'S   " + temp_stj.rjust(5," ") + " C     "
             s8= s8[0:20] + word_short(cond_stj,13)[0:13]
 
-        elif (PageNum == 9):
+        elif PageNum == 9:
             # ===================== Screen 9 =====================
             debug_msg(("WEATHER_PAGE-display page " + str(PageNum)), 2)
 
@@ -467,7 +467,7 @@ def weather_page(PageColour, PageNum):
             s7 = f"{hrly_period_local[5].strftime('%I:%M %p').lstrip('0').rjust(8)} {str(local_tz)}  {hrly_temp[5].rjust(3)} C  {hrly_cond[5][0:13]}"
             s8 = f"{hrly_period_local[6].strftime('%I:%M %p').lstrip('0').rjust(8)} {str(local_tz)}  {hrly_temp[6].rjust(3)} C  {hrly_cond[6][0:13]}"
 
-        elif (PageNum == 10):
+        elif PageNum == 10:
   # ===================== Screen 10 =====================
             debug_msg(f"WEATHER_PAGE-display page {PageNum}", 2)
 
@@ -507,7 +507,7 @@ def weather_page(PageColour, PageNum):
             s8 = f" PREV DAY WINNIPEG  {yest_precip.rjust(7,' ')}"
 
 
-        elif (PageNum == 11):
+        elif PageNum == 11:
             # ===================== Screen 11 =====================
             debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
@@ -544,15 +544,15 @@ def weather_page(PageColour, PageNum):
             debug_msg(f"WEATHER_PAGE-error creating canvas: {str(e)}", 1)
 
         # Toggle Page Colour between RED & BLUE
-        if (PageColour == BLUE): # BLUE
+        if PageColour == BLUE: # BLUE
             PageColour = RED # RED
         else:
             PageColour = BLUE # BLUE
 
         # Increment Page Number or Reset
-        if (PageNum < PageTotal):
+        if PageNum < PageTotal:
             PageNum = PageNum + 1
-        elif (PageNum >= PageTotal):
+        elif PageNum >= PageTotal:
             PageNum = 1
 
         root.after(20000, weather_page, PageColour, PageNum) # re-run every 20sec from program launch
@@ -560,11 +560,11 @@ def weather_page(PageColour, PageNum):
     except Exception as e:
         debug_msg(f"WEATHER_PAGE-critical error: {str(e)}", 1)
         # Continue with next page anyway
-        if (PageColour == BLUE):
+        if PageColour == BLUE:
             PageColour = RED
         else:
             PageColour = BLUE
-        if (PageNum < 11):
+        if PageNum < 11:
             PageNum = PageNum + 1
         else:
             PageNum = 1
@@ -601,7 +601,7 @@ async def weather_update_async(group):
     t1 = datetime.datetime.now().timestamp()
     timechk = t1 - updt_tstp[group] if group > 0 else 1801  # Force update for group 0
 
-    if (timechk > 1800) or (group == 0):
+    if timechk > 1800 or group == 0:  # Update if more than 30 min elapsed or if group is 0 (all)
         debug_msg(f"WEATHER_UPDATE_ASYNC-starting update for group {group}", 1)
 
         async def update_single_station(station, name, timeout=15):
@@ -619,7 +619,7 @@ async def weather_update_async(group):
                 return False
 
         try:
-            if (group == 0 or group == 1):
+            if group == 0 or group == 1:
                 debug_msg("WEATHER_UPDATE_ASYNC-updating Manitoba/Regional stations", 1)
                 stations = [
                     (ec_en_wpg, "Winnipeg"),
@@ -648,7 +648,7 @@ async def weather_update_async(group):
                 else:
                     updt_tstp[group] = datetime.datetime.now().timestamp()
 
-            if (group == 0 or group == 2):
+            if group == 0 or group == 2:
                 debug_msg("WEATHER_UPDATE_ASYNC-updating Western Canada stations", 1)
                 stations = [
                     (ec_en_vic, "Victoria"),
@@ -668,7 +668,7 @@ async def weather_update_async(group):
                 if group != 0:
                     updt_tstp[group] = datetime.datetime.now().timestamp()
 
-            if (group == 0 or group == 3):
+            if group == 0 or group == 3:
                 debug_msg("WEATHER_UPDATE_ASYNC-updating Eastern Canada stations", 1)
                 stations = [
                     (ec_en_tor, "Toronto"),
@@ -851,7 +851,7 @@ def music_player(songNumber, playlist, musicpath):
             root.after(10000, music_player, songNumber, playlist, musicpath)
             return
 
-        if ((not pygame.mixer.music.get_busy()) and (songNumber < len(playlist))):
+        if not pygame.mixer.music.get_busy() and songNumber < len(playlist):
             try:
                 debug_msg(f"MUSIC_PLAYER-playing song {os.path.basename(playlist[songNumber])}", 1)
                 pygame.mixer.music.load(playlist[songNumber])
@@ -861,7 +861,7 @@ def music_player(songNumber, playlist, musicpath):
                 debug_msg(f"MUSIC_PLAYER-error playing {playlist[songNumber]}: {str(e)}", 1)
                 songNumber = songNumber + 1  # Skip problematic file
 
-        elif ((not pygame.mixer.music.get_busy()) and (songNumber >= len(playlist))):
+        elif not pygame.mixer.music.get_busy() and songNumber >= len(playlist):
             debug_msg("MUSIC_PLAYER-playlist complete, re-shuffling...", 1)
             songNumber = 0
             random.shuffle(playlist)
@@ -930,7 +930,7 @@ def debug_msg(message, priority):
         else:
             timestr = ""
 
-        if ((debugmode > 0) and (priority <= debugmode)):
+        if debugmode > 0 and priority <= debugmode:
             print(f"{timestr}{PROG}.{VER}.{message}")
 
     except Exception as e:
