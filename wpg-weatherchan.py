@@ -496,7 +496,7 @@ class App:
             # Cleanup
             try:
                 if 'pygame' in globals():
-                    pygame().mixer.quit # pylint: disable=expression-not-assigned
+                    pygame.mixer.quit() # pylint: disable=expression-not-assigned
 
             except Exception as e:
                 debugger.debug_msg(f"ROOT-cleanup error: {str(e)}", 1)
