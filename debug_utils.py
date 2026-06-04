@@ -1,6 +1,12 @@
+"""Debug utilities for wpg-weatherchan"""
+
 import time
+from details import Details
+
+detail = Details()
 
 class DebugUtils:
+    """Class to handle debug messages"""
     def __init__(self):
         pass
 
@@ -19,7 +25,7 @@ class DebugUtils:
                 timestr = ""
 
             if debugmode > 0 and priority <= debugmode:
-                print(f"{timestr}{PROG}.{VER}.{message}")
+                print(f"{timestr}{detail.PROG}.{detail.VER}.{message}")
 
         except Exception as e:
             print(f"DEBUG_MSG-error: {str(e)}")
