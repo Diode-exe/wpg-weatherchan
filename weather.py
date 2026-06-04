@@ -1,3 +1,5 @@
+"""Module to handle weather updates for the application, with improved error handling and async support."""
+
 import asyncio
 import datetime
 import time
@@ -32,7 +34,7 @@ class WeatherUpdate:
                 self.real_forecast_time = time.strftime("%I %p").lstrip("0")
             if not self.real_forecast_date:
                 self.real_forecast_date = datetime.datetime.now().strftime("%a %b %d/%Y")
-    
+
     # DEF update weather for all cities with improved error handling
     async def weather_update_async(self, group, updt_tstp_ref):
         """Async weather update with proper error handling and timeouts"""

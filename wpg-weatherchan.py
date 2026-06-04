@@ -67,7 +67,7 @@ class WeatherLocations:
         self.ec_en_frd = None
         self.ec_en_hal = None
         self.ec_en_stj = None
-        
+
 weather_locations = WeatherLocations()
 
 # DEF clock Updater
@@ -477,7 +477,8 @@ def weather_page(PageColour, PageNum):
                 for period in hrly_period:
                     try:
                         hrly_period_local.append(period.astimezone())
-                    except:
+                    except Exception as e:
+                        debugger.debug_msg(f"WEATHER_PAGE-error converting period to local time: {str(e)}", 1)
                         hrly_period_local.append(datetime.datetime.now())
 
                 # Shorten condition text
@@ -825,7 +826,7 @@ def word_short(phrase, length):
         return str(phrase)[:length] if phrase else "ERROR"
 
 # DEF signal handler for graceful shutdown
-def signal_handler(sig, frame):
+def signal_handler():
     """Handle shutdown signals gracefully"""
     debugger.debug_msg("SIGNAL_HANDLER-received shutdown signal", 1)
     try:
@@ -1014,8 +1015,8 @@ def main():
         try:
             if 'pygame' in globals():
                 pygame().mixer.quit
-        except:
-            pass
+        except Exception as e:
+            debugger.debug_msg(f"ROOT-cleanup error: {str(e)}", 1)
 
 if __name__ == "__main__":
     main()
