@@ -43,28 +43,32 @@ root = None
 timeText = None
 updt_tstp = None
 weather_updater = None
-ec_en_wpg = None
-ec_en_brn = None
-ec_en_thm = None
-ec_en_tps = None
-ec_en_chu = None
-ec_en_fln = None
-ec_en_ken = None
-ec_en_tby = None
-ec_en_vic = None
-ec_en_van = None
-ec_en_edm = None
-ec_en_cal = None
-ec_en_ssk = None
-ec_en_reg = None
-ec_en_wht = None
-ec_en_tor = None
-ec_en_otw = None
-ec_en_qbc = None
-ec_en_mtl = None
-ec_en_frd = None
-ec_en_hal = None
-ec_en_stj = None
+class WeatherLocations:
+    def __init__(self):
+        self.ec_en_wpg = None
+        self.ec_en_brn = None
+        self.ec_en_thm = None
+        self.ec_en_tps = None
+        self.ec_en_chu = None
+        self.ec_en_fln = None
+        self.ec_en_ken = None
+        self.ec_en_tby = None
+        self.ec_en_vic = None
+        self.ec_en_van = None
+        self.ec_en_edm = None
+        self.ec_en_cal = None
+        self.ec_en_ssk = None
+        self.ec_en_reg = None
+        self.ec_en_wht = None
+        self.ec_en_tor = None
+        self.ec_en_otw = None
+        self.ec_en_qbc = None
+        self.ec_en_mtl = None
+        self.ec_en_frd = None
+        self.ec_en_hal = None
+        self.ec_en_stj = None
+        
+weather_locations = WeatherLocations()
 
 # DEF clock Updater
 def clock():
@@ -98,17 +102,17 @@ def weather_page(PageColour, PageNum):
 
             # weather data with safe access
             try:
-                temp_cur = str(safe_get_weather_value(ec_en_wpg.conditions, "temperature", "value", default="--"))
-                temp_high = str(safe_get_weather_value(ec_en_wpg.conditions, "high_temp", "value", default="--"))
-                temp_low = str(safe_get_weather_value(ec_en_wpg.conditions, "low_temp", "value", default="--"))
-                humidity = str(safe_get_weather_value(ec_en_wpg.conditions, "humidity", "value", default="--"))
-                condition = safe_get_weather_value(ec_en_wpg.conditions, "condition", "value", default="NO DATA")
-                pressure = str(safe_get_weather_value(ec_en_wpg.conditions, "pressure", "value", default="--"))
-                tendency = safe_get_weather_value(ec_en_wpg.conditions, "tendency", "value", default="STEADY")
-                dewpoint = str(safe_get_weather_value(ec_en_wpg.conditions, "dewpoint", "value", default="--"))
-                uv_index_val = safe_get_weather_value(ec_en_wpg.conditions, "uv_index", "value", default="--")
+                temp_cur = str(safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "temperature", "value", default="--"))
+                temp_high = str(safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "high_temp", "value", default="--"))
+                temp_low = str(safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "low_temp", "value", default="--"))
+                humidity = str(safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "humidity", "value", default="--"))
+                condition = safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "condition", "value", default="NO DATA")
+                pressure = str(safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "pressure", "value", default="--"))
+                tendency = safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "tendency", "value", default="STEADY")
+                dewpoint = str(safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "dewpoint", "value", default="--"))
+                uv_index_val = safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "uv_index", "value", default="--")
                 uv_index = str(uv_index_val) if uv_index_val is not None else "--"
-                pop_val = safe_get_weather_value(ec_en_wpg.conditions, "pop", "value", default="--")
+                pop_val = safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "pop", "value", default="--")
                 pop = str(pop_val) if pop_val is not None else "0"
 
                 try:
@@ -133,8 +137,8 @@ def weather_page(PageColour, PageNum):
                     uv_cat = ""
 
                 # check if windchill or humidex is present
-                windchill_val = safe_get_weather_value(ec_en_wpg.conditions, "wind_chill", "value", default="--")
-                humidex_val = safe_get_weather_value(ec_en_wpg.conditions, "humidex", "value", default="--")
+                windchill_val = safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "wind_chill", "value", default="--")
+                humidex_val = safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "humidex", "value", default="--")
 
                 if windchill_val not in [None, "--"]:
                     windchildex = "WIND CHILL " + str(windchill_val) + " C"
@@ -144,8 +148,8 @@ def weather_page(PageColour, PageNum):
                     windchildex = ""
 
                 # check if there is wind
-                wind_dir_val = safe_get_weather_value(ec_en_wpg.conditions, "wind_dir", "value", default="--")
-                wind_spd_val = safe_get_weather_value(ec_en_wpg.conditions, "wind_speed", "value", default="--")
+                wind_dir_val = safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "wind_dir", "value", default="--")
+                wind_spd_val = safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "wind_speed", "value", default="--")
 
                 if wind_dir_val is not None and wind_spd_val is not None:
                     windstr = "WIND " + str(wind_dir_val) + " " + str(wind_spd_val) + " KMH"
@@ -153,7 +157,7 @@ def weather_page(PageColour, PageNum):
                     windstr = "NO WIND"
 
                 # check visibility
-                visibility_val = safe_get_weather_value(ec_en_wpg.conditions, "visibility", "value", default="--")
+                visibility_val = safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "visibility", "value", default="--")
                 if visibility_val is not None:
                     visibstr = "VISBY " + str(visibility_val).rjust(5," ") + " KM         "
                 else:
@@ -188,17 +192,17 @@ def weather_page(PageColour, PageNum):
 
             try:
                 # pull text forecasts from env_canada with safe access
-                current_summary = safe_get_weather_value(ec_en_wpg.conditions, "text_summary", "value", "NO FORECAST AVAILABLE")
+                current_summary = safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "text_summary", "value", "NO FORECAST AVAILABLE")
                 wsum_day1 = textwrap.wrap(current_summary.upper(), 35)
 
                 wsum_day2 = wsum_day3 = wsum_day4 = wsum_day5 = wsum_day6 = []
 
                 try:
-                    if hasattr(ec_en_wpg, 'daily_forecasts') and len(ec_en_wpg.daily_forecasts) > 1:
+                    if hasattr(weather_locations.ec_en_wpg, 'daily_forecasts') and len(weather_locations.ec_en_wpg.daily_forecasts) > 1:
                         for i, day_offset in enumerate([1,2,3,4,5], 1):
-                            if len(ec_en_wpg.daily_forecasts) > day_offset:
-                                period = ec_en_wpg.daily_forecasts[day_offset].get("period", "DAY " + str(i+1))
-                                summary = ec_en_wpg.daily_forecasts[day_offset].get("text_summary", "NO DATA")
+                            if len(weather_locations.ec_en_wpg.daily_forecasts) > day_offset:
+                                period = weather_locations.ec_en_wpg.daily_forecasts[day_offset].get("period", "DAY " + str(i+1))
+                                summary = weather_locations.ec_en_wpg.daily_forecasts[day_offset].get("text_summary", "NO DATA")
                                 forecast_text = textwrap.wrap((period + ".." + summary).upper(), 35)
                                 if i == 1: wsum_day2 = forecast_text
                                 elif i == 2: wsum_day3 = forecast_text
@@ -269,18 +273,18 @@ def weather_page(PageColour, PageNum):
 
             # weather data with safe access
             # current temperature
-            temp_cur = str(safe_get_weather_value(ec_en_wpg.conditions, "temperature", "value", default="--"))
+            temp_cur = str(safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "temperature", "value", default="--"))
 
             # Forecast highs/lows
-            if hasattr(ec_en_wpg, "daily_forecasts") and len(ec_en_wpg.daily_forecasts) > 0:
-                today_forecast = ec_en_wpg.daily_forecasts[0]
+            if hasattr(weather_locations.ec_en_wpg, "daily_forecasts") and len(weather_locations.ec_en_wpg.daily_forecasts) > 0:
+                today_forecast = weather_locations.ec_en_wpg.daily_forecasts[0]
                 temp_high = str(safe_get_weather_value(today_forecast, "high_temp", "value", default="--"))
                 temp_low  = str(safe_get_weather_value(today_forecast, "low_temp", "value", default="--"))
             else:
                 temp_high = temp_low = "--"
 
             # Observations
-            observations = getattr(ec_en_wpg, "observations", {}) or {}
+            observations = getattr(weather_locations.ec_en_wpg, "observations", {}) or {}
 
             # Yesterday
             yesterday = observations.get("yesterday", {}) or {}
@@ -308,21 +312,21 @@ def weather_page(PageColour, PageNum):
             debugger.debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
             # Regional temperatures with safe access
-            temp_brn = str(safe_get_weather_value(ec_en_brn.conditions, "temperature", "value", default="--"))
-            temp_thm = str(safe_get_weather_value(ec_en_thm.conditions, "temperature", "value", default="--"))
-            temp_tps = str(safe_get_weather_value(ec_en_tps.conditions, "temperature", "value", default="--"))
-            temp_fln = str(safe_get_weather_value(ec_en_fln.conditions, "temperature", "value", default="--"))
-            temp_chu = str(safe_get_weather_value(ec_en_chu.conditions, "temperature", "value", default="--"))
-            temp_ken = str(safe_get_weather_value(ec_en_ken.conditions, "temperature", "value", default="--"))
-            temp_tby = str(safe_get_weather_value(ec_en_tby.conditions, "temperature", "value", default="--"))
+            temp_brn = str(safe_get_weather_value(weather_locations.ec_en_brn.conditions, "temperature", "value", default="--"))
+            temp_thm = str(safe_get_weather_value(weather_locations.ec_en_thm.conditions, "temperature", "value", default="--"))
+            temp_tps = str(safe_get_weather_value(weather_locations.ec_en_tps.conditions, "temperature", "value", default="--"))
+            temp_fln = str(safe_get_weather_value(weather_locations.ec_en_fln.conditions, "temperature", "value", default="--"))
+            temp_chu = str(safe_get_weather_value(weather_locations.ec_en_chu.conditions, "temperature", "value", default="--"))
+            temp_ken = str(safe_get_weather_value(weather_locations.ec_en_ken.conditions, "temperature", "value", default="--"))
+            temp_tby = str(safe_get_weather_value(weather_locations.ec_en_tby.conditions, "temperature", "value", default="--"))
 
-            cond_brn = safe_get_weather_value(ec_en_brn.conditions, "condition", "value", default="NO DATA")
-            cond_thm = safe_get_weather_value(ec_en_thm.conditions, "condition", "value", default="NO DATA")
-            cond_tps = safe_get_weather_value(ec_en_tps.conditions, "condition", "value", default="NO DATA")
-            cond_fln = safe_get_weather_value(ec_en_fln.conditions, "condition", "value", default="NO DATA")
-            cond_chu = safe_get_weather_value(ec_en_chu.conditions, "condition", "value", default="NO DATA")
-            cond_ken = safe_get_weather_value(ec_en_ken.conditions, "condition", "value", default="NO DATA")
-            cond_tby = safe_get_weather_value(ec_en_tby.conditions, "condition", "value", default="NO DATA")
+            cond_brn = safe_get_weather_value(weather_locations.ec_en_brn.conditions, "condition", "value", default="NO DATA")
+            cond_thm = safe_get_weather_value(weather_locations.ec_en_thm.conditions, "condition", "value", default="NO DATA")
+            cond_tps = safe_get_weather_value(weather_locations.ec_en_tps.conditions, "condition", "value", default="NO DATA")
+            cond_fln = safe_get_weather_value(weather_locations.ec_en_fln.conditions, "condition", "value", default="NO DATA")
+            cond_chu = safe_get_weather_value(weather_locations.ec_en_chu.conditions, "condition", "value", default="NO DATA")
+            cond_ken = safe_get_weather_value(weather_locations.ec_en_ken.conditions, "condition", "value", default="NO DATA")
+            cond_tby = safe_get_weather_value(weather_locations.ec_en_tby.conditions, "condition", "value", default="NO DATA")
 
             # create 8 lines of text
             s1=(real_forecast_date.upper()).center(35," ")
@@ -346,21 +350,21 @@ def weather_page(PageColour, PageNum):
             debugger.debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
             # Western Canada temperatures with safe access
-            temp_vic = str(safe_get_weather_value(ec_en_vic.conditions, "temperature", "value", default="--"))
-            temp_van = str(safe_get_weather_value(ec_en_van.conditions, "temperature", "value", default="--"))
-            temp_edm = str(safe_get_weather_value(ec_en_edm.conditions, "temperature", "value", default="--"))
-            temp_cal = str(safe_get_weather_value(ec_en_cal.conditions, "temperature", "value", default="--"))
-            temp_ssk = str(safe_get_weather_value(ec_en_ssk.conditions, "temperature", "value", default="--"))
-            temp_reg = str(safe_get_weather_value(ec_en_reg.conditions, "temperature", "value", default="--"))
-            temp_wht = str(safe_get_weather_value(ec_en_wht.conditions, "temperature", "value", default="--"))
+            temp_vic = str(safe_get_weather_value(weather_locations.ec_en_vic.conditions, "temperature", "value", default="--"))
+            temp_van = str(safe_get_weather_value(weather_locations.ec_en_van.conditions, "temperature", "value", default="--"))
+            temp_edm = str(safe_get_weather_value(weather_locations.ec_en_edm.conditions, "temperature", "value", default="--"))
+            temp_cal = str(safe_get_weather_value(weather_locations.ec_en_cal.conditions, "temperature", "value", default="--"))
+            temp_ssk = str(safe_get_weather_value(weather_locations.ec_en_ssk.conditions, "temperature", "value", default="--"))
+            temp_reg = str(safe_get_weather_value(weather_locations.ec_en_reg.conditions, "temperature", "value", default="--"))
+            temp_wht = str(safe_get_weather_value(weather_locations.ec_en_wht.conditions, "temperature", "value", default="--"))
 
-            cond_vic = safe_get_weather_value(ec_en_vic.conditions, "condition", "value", default="NO DATA")
-            cond_van = safe_get_weather_value(ec_en_van.conditions, "condition", "value", default="NO DATA")
-            cond_edm = safe_get_weather_value(ec_en_edm.conditions, "condition", "value", default="NO DATA")
-            cond_cal = safe_get_weather_value(ec_en_cal.conditions, "condition", "value", default="NO DATA")
-            cond_ssk = safe_get_weather_value(ec_en_ssk.conditions, "condition", "value", default="NO DATA")
-            cond_reg = safe_get_weather_value(ec_en_reg.conditions, "condition", "value", default="NO DATA")
-            cond_wht = safe_get_weather_value(ec_en_wht.conditions, "condition", "value", default="NO DATA")
+            cond_vic = safe_get_weather_value(weather_locations.ec_en_vic.conditions, "condition", "value", default="NO DATA")
+            cond_van = safe_get_weather_value(weather_locations.ec_en_van.conditions, "condition", "value", default="NO DATA")
+            cond_edm = safe_get_weather_value(weather_locations.ec_en_edm.conditions, "condition", "value", default="NO DATA")
+            cond_cal = safe_get_weather_value(weather_locations.ec_en_cal.conditions, "condition", "value", default="NO DATA")
+            cond_ssk = safe_get_weather_value(weather_locations.ec_en_ssk.conditions, "condition", "value", default="NO DATA")
+            cond_reg = safe_get_weather_value(weather_locations.ec_en_reg.conditions, "condition", "value", default="NO DATA")
+            cond_wht = safe_get_weather_value(weather_locations.ec_en_wht.conditions, "condition", "value", default="NO DATA")
 
             # create 8 lines of text
             s1=(real_forecast_date.upper()).center(35," ")
@@ -384,21 +388,21 @@ def weather_page(PageColour, PageNum):
             debugger.debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
             # Eastern Canada temperatures with safe access
-            temp_tor = str(safe_get_weather_value(ec_en_tor.conditions, "temperature", "value", default="--"))
-            temp_otw = str(safe_get_weather_value(ec_en_otw.conditions, "temperature", "value", default="--"))
-            temp_qbc = str(safe_get_weather_value(ec_en_qbc.conditions, "temperature", "value", default="--"))
-            temp_mtl = str(safe_get_weather_value(ec_en_mtl.conditions, "temperature", "value", default="--"))
-            temp_frd = str(safe_get_weather_value(ec_en_frd.conditions, "temperature", "value", default="--"))
-            temp_hal = str(safe_get_weather_value(ec_en_hal.conditions, "temperature", "value", default="--"))
-            temp_stj = str(safe_get_weather_value(ec_en_stj.conditions, "temperature", "value", default="--"))
+            temp_tor = str(safe_get_weather_value(weather_locations.ec_en_tor.conditions, "temperature", "value", default="--"))
+            temp_otw = str(safe_get_weather_value(weather_locations.ec_en_otw.conditions, "temperature", "value", default="--"))
+            temp_qbc = str(safe_get_weather_value(weather_locations.ec_en_qbc.conditions, "temperature", "value", default="--"))
+            temp_mtl = str(safe_get_weather_value(weather_locations.ec_en_mtl.conditions, "temperature", "value", default="--"))
+            temp_frd = str(safe_get_weather_value(weather_locations.ec_en_frd.conditions, "temperature", "value", default="--"))
+            temp_hal = str(safe_get_weather_value(weather_locations.ec_en_hal.conditions, "temperature", "value", default="--"))
+            temp_stj = str(safe_get_weather_value(weather_locations.ec_en_stj.conditions, "temperature", "value", default="--"))
 
-            cond_tor = safe_get_weather_value(ec_en_tor.conditions, "condition", "value", default="NO DATA")
-            cond_otw = safe_get_weather_value(ec_en_otw.conditions, "condition", "value", default="NO DATA")
-            cond_qbc = safe_get_weather_value(ec_en_qbc.conditions, "condition", "value", default="NO DATA")
-            cond_mtl = safe_get_weather_value(ec_en_mtl.conditions, "condition", "value", default="NO DATA")
-            cond_frd = safe_get_weather_value(ec_en_frd.conditions, "condition", "value", default="NO DATA")
-            cond_hal = safe_get_weather_value(ec_en_hal.conditions, "condition", "value", default="NO DATA")
-            cond_stj = safe_get_weather_value(ec_en_stj.conditions, "condition", "value", default="NO DATA")
+            cond_tor = safe_get_weather_value(weather_locations.ec_en_tor.conditions, "condition", "value", default="NO DATA")
+            cond_otw = safe_get_weather_value(weather_locations.ec_en_otw.conditions, "condition", "value", default="NO DATA")
+            cond_qbc = safe_get_weather_value(weather_locations.ec_en_qbc.conditions, "condition", "value", default="NO DATA")
+            cond_mtl = safe_get_weather_value(weather_locations.ec_en_mtl.conditions, "condition", "value", default="NO DATA")
+            cond_frd = safe_get_weather_value(weather_locations.ec_en_frd.conditions, "condition", "value", default="NO DATA")
+            cond_hal = safe_get_weather_value(weather_locations.ec_en_hal.conditions, "condition", "value", default="NO DATA")
+            cond_stj = safe_get_weather_value(weather_locations.ec_en_stj.conditions, "condition", "value", default="NO DATA")
 
             # create 8 lines of text
             s1=(real_forecast_date.upper()).center(35," ")
@@ -426,14 +430,14 @@ def weather_page(PageColour, PageNum):
 
             try:
                 # convert hourly forecast data with safe access
-                if hasattr(ec_en_wpg, 'hourly_forecasts') and len(ec_en_wpg.hourly_forecasts) >= 13:
+                if hasattr(weather_locations.ec_en_wpg, 'hourly_forecasts') and len(weather_locations.ec_en_wpg.hourly_forecasts) >= 13:
                     hrly_period = []
                     hrly_temp = []
                     hrly_cond = []
 
                     for i in [0, 2, 4, 6, 8, 10, 12]:
-                        if i < len(ec_en_wpg.hourly_forecasts):
-                            forecast = ec_en_wpg.hourly_forecasts[i]
+                        if i < len(weather_locations.ec_en_wpg.hourly_forecasts):
+                            forecast = weather_locations.ec_en_wpg.hourly_forecasts[i]
 
                             # Safely get period
                             period = forecast.get("period", datetime.datetime.now())
@@ -514,15 +518,15 @@ def weather_page(PageColour, PageNum):
                 return "-- %"
 
             # Get today’s POP for all stations
-            wpg_precip = get_daily_pop(ec_en_wpg)
-            brn_precip = get_daily_pop(ec_en_brn)
-            tps_precip = get_daily_pop(ec_en_tps)
-            fln_precip = get_daily_pop(ec_en_fln)
-            thm_precip = get_daily_pop(ec_en_thm)
-            chu_precip = get_daily_pop(ec_en_chu)
+            wpg_precip = get_daily_pop(weather_locations.ec_en_wpg)
+            brn_precip = get_daily_pop(weather_locations.ec_en_brn)
+            tps_precip = get_daily_pop(weather_locations.ec_en_tps)
+            fln_precip = get_daily_pop(weather_locations.ec_en_fln)
+            thm_precip = get_daily_pop(weather_locations.ec_en_thm)
+            chu_precip = get_daily_pop(weather_locations.ec_en_chu)
 
             # Yesterday's precipitation — fallback, since current ECWeather version may not provide
-            yest_precip_val = safe_get_weather_value(ec_en_wpg.conditions, "precip_yesterday", "value", default=None)
+            yest_precip_val = safe_get_weather_value(weather_locations.ec_en_wpg.conditions, "precip_yesterday", "value", default=None)
             yest_precip = f"{yest_precip_val} MM" if yest_precip_val is not None else "-- MM"
 
             # Create 8 lines of text
@@ -828,17 +832,14 @@ def signal_handler(sig, frame):
         pygame.mixer.quit()
         root.quit()
         root.destroy()
-    except:
-        pass
+    except Exception as e:
+        debugger.debug_msg(f"SIGNAL_HANDLER-error: {str(e)}", 1)
     sys.exit(0)
 
 # ROOT main setup
 def main():
     """Main application setup with error handling"""
     global root, timeText, updt_tstp
-    global ec_en_wpg, ec_en_brn, ec_en_thm, ec_en_tps, ec_en_chu, ec_en_fln, ec_en_ken, ec_en_tby
-    global ec_en_vic, ec_en_van, ec_en_edm, ec_en_cal, ec_en_ssk, ec_en_reg, ec_en_wht
-    global ec_en_tor, ec_en_otw, ec_en_qbc, ec_en_mtl, ec_en_frd, ec_en_hal, ec_en_stj
 
     try:
         weather_updater = WeatherUpdate()
@@ -874,56 +875,56 @@ def main():
         debugger.debug_msg("ROOT-initializing weather stations", 1)
         try:
             # group 1 - Manitoba/Regional
-            ec_en_wpg = ECWeather(station_id='MB/s0000193', language='english')
-            ec_en_brn = ECWeather(station_id='MB/s0000492', language='english')
-            ec_en_thm = ECWeather(station_id='MB/s0000695', language='english')
-            ec_en_tps = ECWeather(station_id='MB/s0000644', language='english')
-            ec_en_chu = ECWeather(station_id='MB/s0000779', language='english')
-            ec_en_fln = ECWeather(station_id='MB/s0000015', language='english')
-            ec_en_ken = ECWeather(station_id='ON/s0000651', language='english')
-            ec_en_tby = ECWeather(station_id='ON/s0000411', language='english')
+            weather_locations.ec_en_wpg = ECWeather(station_id='MB/s0000193', language='english')
+            weather_locations.ec_en_brn = ECWeather(station_id='MB/s0000492', language='english')
+            weather_locations.ec_en_thm = ECWeather(station_id='MB/s0000695', language='english')
+            weather_locations.ec_en_tps = ECWeather(station_id='MB/s0000644', language='english')
+            weather_locations.ec_en_chu = ECWeather(station_id='MB/s0000779', language='english')
+            weather_locations.ec_en_fln = ECWeather(station_id='MB/s0000015', language='english')
+            weather_locations.ec_en_ken = ECWeather(station_id='ON/s0000651', language='english')
+            weather_locations.ec_en_tby = ECWeather(station_id='ON/s0000411', language='english')
 
             # group 2 - Western Canada
-            ec_en_vic = ECWeather(station_id='BC/s0000775', language='english')
-            ec_en_van = ECWeather(station_id='BC/s0000141', language='english')
-            ec_en_edm = ECWeather(station_id='AB/s0000045', language='english')
-            ec_en_cal = ECWeather(station_id='AB/s0000047', language='english')
-            ec_en_ssk = ECWeather(station_id='SK/s0000797', language='english')
-            ec_en_reg = ECWeather(station_id='SK/s0000788', language='english')
-            ec_en_wht = ECWeather(station_id='YT/s0000825', language='english')
+            weather_locations.ec_en_vic = ECWeather(station_id='BC/s0000775', language='english')
+            weather_locations.ec_en_van = ECWeather(station_id='BC/s0000141', language='english')
+            weather_locations.ec_en_edm = ECWeather(station_id='AB/s0000045', language='english')
+            weather_locations.ec_en_cal = ECWeather(station_id='AB/s0000047', language='english')
+            weather_locations.ec_en_ssk = ECWeather(station_id='SK/s0000797', language='english')
+            weather_locations.ec_en_reg = ECWeather(station_id='SK/s0000788', language='english')
+            weather_locations.ec_en_wht = ECWeather(station_id='YT/s0000825', language='english')
 
             # group 3 - Eastern Canada
-            ec_en_tor = ECWeather(station_id='ON/s0000458', language='english')
-            ec_en_otw = ECWeather(station_id='ON/s0000430', language='english')
-            ec_en_mtl = ECWeather(station_id='QC/s0000635', language='english')
-            ec_en_qbc = ECWeather(station_id='QC/s0000620', language='english')
-            ec_en_frd = ECWeather(station_id='NB/s0000250', language='english')
-            ec_en_hal = ECWeather(station_id='NS/s0000318', language='english')
-            ec_en_stj = ECWeather(station_id='NL/s0000280', language='english')
+            weather_locations.ec_en_tor = ECWeather(station_id='ON/s0000458', language='english')
+            weather_locations.ec_en_otw = ECWeather(station_id='ON/s0000430', language='english')
+            weather_locations.ec_en_mtl = ECWeather(station_id='QC/s0000635', language='english')
+            weather_locations.ec_en_qbc = ECWeather(station_id='QC/s0000620', language='english')
+            weather_locations.ec_en_frd = ECWeather(station_id='NB/s0000250', language='english')
+            weather_locations.ec_en_hal = ECWeather(station_id='NS/s0000318', language='english')
+            weather_locations.ec_en_stj = ECWeather(station_id='NL/s0000280', language='english')
 
             stations = {
-                "wpg": ec_en_wpg,
-                "brn": ec_en_brn,
-                "thm": ec_en_thm,
-                "tps": ec_en_tps,
-                "chu": ec_en_chu,
-                "fln": ec_en_fln,
-                "ken": ec_en_ken,
-                "tby": ec_en_tby,
-                "vic": ec_en_vic,
-                "van": ec_en_van,
-                "edm": ec_en_edm,
-                "cal": ec_en_cal,
-                "ssk": ec_en_ssk,
-                "reg": ec_en_reg,
-                "wht": ec_en_wht,
-                "tor": ec_en_tor,
-                "otw": ec_en_otw,
-                "qbc": ec_en_qbc,
-                "mtl": ec_en_mtl,
-                "frd": ec_en_frd,
-                "hal": ec_en_hal,
-                "stj": ec_en_stj,
+                "wpg": weather_locations.ec_en_wpg,
+                "brn": weather_locations.ec_en_brn,
+                "thm": weather_locations.ec_en_thm,
+                "tps": weather_locations.ec_en_tps,
+                "chu": weather_locations.ec_en_chu,
+                "fln": weather_locations.ec_en_fln,
+                "ken": weather_locations.ec_en_ken,
+                "tby": weather_locations.ec_en_tby,
+                "vic": weather_locations.ec_en_vic,
+                "van": weather_locations.ec_en_van,
+                "edm": weather_locations.ec_en_edm,
+                "cal": weather_locations.ec_en_cal,
+                "ssk": weather_locations.ec_en_ssk,
+                "reg": weather_locations.ec_en_reg,
+                "wht": weather_locations.ec_en_wht,
+                "tor": weather_locations.ec_en_tor,
+                "otw": weather_locations.ec_en_otw,
+                "qbc": weather_locations.ec_en_qbc,
+                "mtl": weather_locations.ec_en_mtl,
+                "frd": weather_locations.ec_en_frd,
+                "hal": weather_locations.ec_en_hal,
+                "stj": weather_locations.ec_en_stj,
             }
 
             weather_updater.set_stations(stations)
