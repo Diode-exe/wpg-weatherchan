@@ -42,7 +42,7 @@ text_forecast = []
 root = None
 timeText = None
 updt_tstp = None
-weather_updater = None
+# weather_updater = None
 class WeatherLocations:
     def __init__(self):
         self.ec_en_wpg = None
@@ -204,11 +204,16 @@ def weather_page(PageColour, PageNum):
                                 period = weather_locations.ec_en_wpg.daily_forecasts[day_offset].get("period", "DAY " + str(i+1))
                                 summary = weather_locations.ec_en_wpg.daily_forecasts[day_offset].get("text_summary", "NO DATA")
                                 forecast_text = textwrap.wrap((period + ".." + summary).upper(), 35)
-                                if i == 1: wsum_day2 = forecast_text
-                                elif i == 2: wsum_day3 = forecast_text
-                                elif i == 3: wsum_day4 = forecast_text
-                                elif i == 4: wsum_day5 = forecast_text
-                                elif i == 5: wsum_day6 = forecast_text
+                                if i == 1:
+                                    wsum_day2 = forecast_text
+                                elif i == 2:
+                                    wsum_day3 = forecast_text
+                                elif i == 3:
+                                    wsum_day4 = forecast_text
+                                elif i == 4:
+                                    wsum_day5 = forecast_text
+                                elif i == 5:
+                                    wsum_day6 = forecast_text
                 except Exception as e:
                     debugger.debug_msg(f"WEATHER_PAGE-error getting daily forecasts: {str(e)}", 1)
 
@@ -1003,7 +1008,7 @@ def main():
             root.mainloop()
         except KeyboardInterrupt:
             debugger.debug_msg("ROOT-keyboard interrupt received", 1)
-            signal_handler(None, None)
+            signal_handler()
         except Exception as e:
             debugger.debug_msg(f"ROOT-main loop error: {str(e)}", 1)
 
@@ -1014,7 +1019,8 @@ def main():
         # Cleanup
         try:
             if 'pygame' in globals():
-                pygame().mixer.quit
+                pygame().mixer.quit # pylint: disable=expression-not-assigned
+
         except Exception as e:
             debugger.debug_msg(f"ROOT-cleanup error: {str(e)}", 1)
 
