@@ -16,6 +16,7 @@ from env_canada import ECWeather
 import feedparser # for RSS feed
 import pygame # for background music
 from bs4 import BeautifulSoup
+from debug_utils import DebugUtils
 
 PROG = "wpg-weather"
 VER = "2.3.3"
@@ -31,6 +32,8 @@ if NT:
 else:
     RED = "#6D0000"
     BLUE = "#00006D"
+
+debugger = DebugUtils()
 
 # Global variables for weather data
 real_forecast_time = ""
@@ -49,7 +52,7 @@ def clock():
         # Schedule next update in 1 second
         root.after(1000, clock)
     except Exception as e:
-        debug_msg(f"CLOCK-error: {str(e)}", 1)
+        debugger.debug_msg(f"CLOCK-error: {str(e)}", 1)
         root.after(1000, clock)
 
 # DEF main weather pages
@@ -62,7 +65,7 @@ def weather_page(PageColour, PageNum):
 
         if PageNum == 1:
             # ===================== Screen 1 =====================
-            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
+            debugger.debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
             # get local timezone to show on screen
             local_tz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
@@ -131,7 +134,7 @@ def weather_page(PageColour, PageNum):
                     visibstr = "VISBY    -- KM         "
 
             except Exception as e:
-                debug_msg(f"WEATHER_PAGE-error getting weather data: {str(e)}", 1)
+                debugger.debug_msg(f"WEATHER_PAGE-error getting weather data: {str(e)}", 1)
                 # Set default values
                 temp_cur = temp_high = temp_low = humidity = dewpoint = pressure = uv_index = pop = "--"
                 condition = "NO DATA AVAILABLE"
@@ -140,7 +143,7 @@ def weather_page(PageColour, PageNum):
                 uv_cat = ""
 
             # create 8 lines of text
-            s1 = ("WINNIPEG " + real_forecast_time + " " + str(local_tz))
+            s1 = "WINNIPEG " + real_forecast_time + " " + str(local_tz)
             s2 = "TEMP  " + temp_cur.rjust(5," ") + " C                "
             s2 = s2[0:24] + " HIGH " + temp_high.rjust(3," ") + " C"
             s3 = word_short(condition,24) + "                         "
@@ -155,7 +158,7 @@ def weather_page(PageColour, PageNum):
 
         elif PageNum == 2:
             # ===================== Screen 2 =====================
-            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
+            debugger.debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
             try:
                 # pull text forecasts from env_canada with safe access
@@ -177,14 +180,14 @@ def weather_page(PageColour, PageNum):
                                 elif i == 4: wsum_day5 = forecast_text
                                 elif i == 5: wsum_day6 = forecast_text
                 except Exception as e:
-                    debug_msg(f"WEATHER_PAGE-error getting daily forecasts: {str(e)}", 1)
+                    debugger.debug_msg(f"WEATHER_PAGE-error getting daily forecasts: {str(e)}", 1)
 
                 # build text_forecast string
                 global text_forecast
                 text_forecast = wsum_day1 + linebreak + wsum_day2 + linebreak + wsum_day3 + linebreak + wsum_day4 + linebreak + wsum_day5 + linebreak + wsum_day6
 
             except Exception as e:
-                debug_msg(f"WEATHER_PAGE-error building forecasts: {str(e)}", 1)
+                debugger.debug_msg(f"WEATHER_PAGE-error building forecasts: {str(e)}", 1)
                 text_forecast = ["NO FORECAST DATA AVAILABLE"]
 
             # create 8 lines of text
@@ -199,7 +202,7 @@ def weather_page(PageColour, PageNum):
 
         elif PageNum == 3:
             # ===================== Screen 3 =====================
-            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
+            debugger.debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
             # create 8 lines of text
             s1 = "WINNIPEG CITY FORECAST CONT'D".center(35," ")
@@ -215,14 +218,14 @@ def weather_page(PageColour, PageNum):
             # ===================== Screen 4 =====================
             # check if this page is needed
             if len(text_forecast) <= 14:
-                debug_msg(("WEATHER_PAGE-display page " + str(PageNum) + " skipped!"),2)
+                debugger.debug_msg(("WEATHER_PAGE-display page " + str(PageNum) + " skipped!"),2)
                 PageNum = PageNum + 1 #skip this page
                 if PageColour == BLUE: # BLUE
                     PageColour = RED # RED
                 else:
                     PageColour = BLUE # BLUE
             else:
-                debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
+                debugger.debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
                 # create 8 lines of text
                 s1 = "WINNIPEG CITY FORECAST CONT'D".center(35," ")
@@ -236,7 +239,7 @@ def weather_page(PageColour, PageNum):
 
         elif PageNum == 5:
             # ===================== Screen 5 =====================
-            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
+            debugger.debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
             # weather data with safe access
             # current temperature
@@ -276,7 +279,7 @@ def weather_page(PageColour, PageNum):
 
         elif PageNum == 6:
             # ===================== Screen 6 =====================
-            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
+            debugger.debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
             # Regional temperatures with safe access
             temp_brn = str(safe_get_weather_value(ec_en_brn.conditions, "temperature", "value", default="--"))
@@ -314,7 +317,7 @@ def weather_page(PageColour, PageNum):
 
         elif PageNum == 7:
             # ===================== Screen 7 =====================
-            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
+            debugger.debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
             # Western Canada temperatures with safe access
             temp_vic = str(safe_get_weather_value(ec_en_vic.conditions, "temperature", "value", default="--"))
@@ -352,7 +355,7 @@ def weather_page(PageColour, PageNum):
 
         elif PageNum == 8:
             # ===================== Screen 8 =====================
-            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
+            debugger.debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
             # Eastern Canada temperatures with safe access
             temp_tor = str(safe_get_weather_value(ec_en_tor.conditions, "temperature", "value", default="--"))
@@ -390,7 +393,7 @@ def weather_page(PageColour, PageNum):
 
         elif PageNum == 9:
             # ===================== Screen 9 =====================
-            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)), 2)
+            debugger.debug_msg(("WEATHER_PAGE-display page " + str(PageNum)), 2)
 
             # get local timezone to show on screen
             local_tz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
@@ -420,7 +423,7 @@ def weather_page(PageColour, PageNum):
                                 try:
                                     temp_str = str(round(float(temp)))
                                 except Exception as e:
-                                    debug_msg(f"WEATHER_PAGE-error converting temperature: {str(e)}", 1)
+                                    debugger.debug_msg(f"WEATHER_PAGE-error converting temperature: {str(e)}", 1)
                                     temp_str = "--"
                             hrly_temp.append(temp_str)
 
@@ -451,7 +454,7 @@ def weather_page(PageColour, PageNum):
                 hrly_cond = [word_short(cond, 13) for cond in hrly_cond]
 
             except Exception as e:
-                debug_msg(f"WEATHER_PAGE-error getting hourly forecast: {str(e)}", 1)
+                debugger.debug_msg(f"WEATHER_PAGE-error getting hourly forecast: {str(e)}", 1)
                 # Fallback data
                 hrly_period_local = [datetime.datetime.now()] * 7
                 hrly_temp = ["--"] * 7
@@ -469,7 +472,7 @@ def weather_page(PageColour, PageNum):
 
         elif PageNum == 10:
   # ===================== Screen 10 =====================
-            debug_msg(f"WEATHER_PAGE-display page {PageNum}", 2)
+            debugger.debug_msg(f"WEATHER_PAGE-display page {PageNum}", 2)
 
             def get_daily_pop(ec_obj):
                 """
@@ -481,7 +484,7 @@ def weather_page(PageColour, PageNum):
                         pop_val = safe_get_weather_value(ec_obj.daily_forecasts[0], "pop", "value", default="--")
                         return f"{pop_val} %" if pop_val is not None else "-- %"
                 except Exception as e:
-                    debug_msg(f"get_daily_pop error for {ec_obj}: {e}", 2)
+                    debugger.debug_msg(f"get_daily_pop error for {ec_obj}: {e}", 2)
                 return "-- %"
 
             # Get today’s POP for all stations
@@ -509,7 +512,7 @@ def weather_page(PageColour, PageNum):
 
         elif PageNum == 11:
             # ===================== Screen 11 =====================
-            debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
+            debugger.debug_msg(("WEATHER_PAGE-display page " + str(PageNum)),2)
 
             # create 8 lines of text
             s1 = "==========CHANNEL LISTING=========="
@@ -541,7 +544,7 @@ def weather_page(PageColour, PageNum):
             weather.create_text(80, 235, anchor='nw', text=s7, font=('VCR OSD Mono', 21,), fill="white")
             weather.create_text(80, 270, anchor='nw', text=s8, font=('VCR OSD Mono', 21,), fill="white")
         except Exception as e:
-            debug_msg(f"WEATHER_PAGE-error creating canvas: {str(e)}", 1)
+            debugger.debug_msg(f"WEATHER_PAGE-error creating canvas: {str(e)}", 1)
 
         # Toggle Page Colour between RED & BLUE
         if PageColour == BLUE: # BLUE
@@ -558,7 +561,7 @@ def weather_page(PageColour, PageNum):
         root.after(20000, weather_page, PageColour, PageNum) # re-run every 20sec from program launch
 
     except Exception as e:
-        debug_msg(f"WEATHER_PAGE-critical error: {str(e)}", 1)
+        debugger.debug_msg(f"WEATHER_PAGE-critical error: {str(e)}", 1)
         # Continue with next page anyway
         if PageColour == BLUE:
             PageColour = RED
@@ -581,7 +584,7 @@ def safe_get_weather_value(weather_obj, *keys, default="NO DATA"):
                 return default
         return data if data is not None else default
     except Exception as e:
-        debug_msg(f"SAFE_GET_WEATHER_VALUE-error accessing {keys}: {str(e)}", 2)
+        debugger.debug_msg(f"SAFE_GET_WEATHER_VALUE-error accessing {keys}: {str(e)}", 2)
         return default
 
 #DEF Safe round so that TypeErrors don't occur in the assignments
@@ -591,132 +594,7 @@ def safe_round(value):
     except (TypeError, ValueError):
         return "--"
 
-# DEF update weather for all cities with improved error handling
-async def weather_update_async(group):
-    """Async weather update with proper error handling and timeouts"""
-    global real_forecast_time
-    global real_forecast_date
 
-    # used to calculate update time
-    t1 = datetime.datetime.now().timestamp()
-    timechk = t1 - updt_tstp[group] if group > 0 else 1801  # Force update for group 0
-
-    if timechk > 1800 or group == 0:  # Update if more than 30 min elapsed or if group is 0 (all)
-        debug_msg(f"WEATHER_UPDATE_ASYNC-starting update for group {group}", 1)
-
-        async def update_single_station(station, name, timeout=15):
-            """Update a single weather station with timeout"""
-            try:
-                debug_msg(f"WEATHER_UPDATE_ASYNC-updating {name}", 2)
-                await asyncio.wait_for(station.update(), timeout=timeout)
-                debug_msg(f"WEATHER_UPDATE_ASYNC-{name} updated successfully", 2)
-                return True
-            except asyncio.TimeoutError:
-                debug_msg(f"WEATHER_UPDATE_ASYNC-{name} timed out after {timeout}s", 1)
-                return False
-            except Exception as e:
-                debug_msg(f"WEATHER_UPDATE_ASYNC-{name} error: {str(e)}", 1)
-                return False
-
-        try:
-            if group == 0 or group == 1:
-                debug_msg("WEATHER_UPDATE_ASYNC-updating Manitoba/Regional stations", 1)
-                stations = [
-                    (ec_en_wpg, "Winnipeg"),
-                    (ec_en_brn, "Brandon"),
-                    (ec_en_thm, "Thompson"),
-                    (ec_en_tps, "The Pas"),
-                    (ec_en_fln, "Flin Flon"),
-                    (ec_en_chu, "Churchill"),
-                    (ec_en_ken, "Kenora"),
-                    (ec_en_tby, "Thunder Bay")
-                ]
-
-                for station, name in stations:
-                    await update_single_station(station, name)
-                    await asyncio.sleep(0.5)  # Small delay between requests
-
-                # Update time strings
-                real_forecast_time = time.strftime("%I %p").lstrip("0")
-                if real_forecast_time == "12 PM":
-                    real_forecast_time = "NOON"
-                real_forecast_date = datetime.datetime.now().strftime("%a %b %d/%Y")
-
-                if group == 0:
-                    for i in range(1, 4):
-                        updt_tstp[i] = datetime.datetime.now().timestamp()
-                else:
-                    updt_tstp[group] = datetime.datetime.now().timestamp()
-
-            if group == 0 or group == 2:
-                debug_msg("WEATHER_UPDATE_ASYNC-updating Western Canada stations", 1)
-                stations = [
-                    (ec_en_vic, "Victoria"),
-                    (ec_en_van, "Vancouver"),
-                    (ec_en_edm, "Edmonton"),
-                    (ec_en_cal, "Calgary"),
-                    (ec_en_ssk, "Saskatoon"),
-                    (ec_en_reg, "Regina"),
-                    (ec_en_wht, "Whitehorse")
-                ]
-
-                for station, name in stations:
-                    await update_single_station(station, name)
-                    await asyncio.sleep(0.5)
-
-                real_forecast_date = datetime.datetime.now().strftime("%a %b %d/%Y")
-                if group != 0:
-                    updt_tstp[group] = datetime.datetime.now().timestamp()
-
-            if group == 0 or group == 3:
-                debug_msg("WEATHER_UPDATE_ASYNC-updating Eastern Canada stations", 1)
-                stations = [
-                    (ec_en_tor, "Toronto"),
-                    (ec_en_otw, "Ottawa"),
-                    (ec_en_qbc, "Quebec City"),
-                    (ec_en_mtl, "Montreal"),
-                    (ec_en_frd, "Fredericton"),
-                    (ec_en_hal, "Halifax"),
-                    (ec_en_stj, "St. John's")
-                ]
-
-                for station, name in stations:
-                    await update_single_station(station, name)
-                    await asyncio.sleep(0.5)
-
-                real_forecast_date = datetime.datetime.now().strftime("%a %b %d/%Y")
-                if group != 0:
-                    updt_tstp[group] = datetime.datetime.now().timestamp()
-
-            # calculate time it took to update
-            t = datetime.datetime.now().timestamp() - t1
-            debug_msg(f"WEATHER_UPDATE_ASYNC-group {group} completed in {round(t,2)} seconds", 1)
-
-        except Exception as e:
-            debug_msg(f"WEATHER_UPDATE_ASYNC-critical error in group {group}: {str(e)}", 1)
-            # Set fallback values
-            if not real_forecast_time:
-                real_forecast_time = time.strftime("%I %p").lstrip("0")
-
-            if not real_forecast_date:
-                real_forecast_date = datetime.datetime.now().strftime("%a %b %d/%Y")
-
-    else:
-        debug_msg(f"WEATHER_UPDATE_ASYNC-group {group} skipped, only {round(timechk//60)} min elapsed", 1)
-
-def weather_update(group):
-    """Synchronous wrapper for async weather update"""
-    try:
-        # Run the async function
-        asyncio.run(weather_update_async(group))
-    except Exception as e:
-        debug_msg(f"WEATHER_UPDATE-wrapper error: {str(e)}", 1)
-        # Set fallback values
-        global real_forecast_time, real_forecast_date
-        if not real_forecast_time:
-            real_forecast_time = time.strftime("%I %p").lstrip("0")
-        if not real_forecast_date:
-            real_forecast_date = datetime.datetime.now().strftime("%a %b %d/%Y")
 
 # DEF bottom marquee scrolling text with improved error handling
 def bottom_marquee(grouptotal, marquee, update_interval=300000):
@@ -763,7 +641,7 @@ def bottom_marquee(grouptotal, marquee, update_interval=300000):
 
                 current_feed_text = mrq_msg.upper()
             except Exception as e:
-                debug_msg(f"RSS fetch error: {e}", 1)
+                debugger.debug_msg(f"RSS fetch error: {e}", 1)
                 current_feed_text = "RSS FEED TEMPORARILY UNAVAILABLE"
 
         # Initial fetch
@@ -799,7 +677,7 @@ def bottom_marquee(grouptotal, marquee, update_interval=300000):
         root.after(update_interval, refresh_feed)
 
     except Exception as e:
-        debug_msg(f"BOTTOM_MARQUEE-critical error: {e}", 1)
+        debugger.debug_msg(f"BOTTOM_MARQUEE-critical error: {e}", 1)
         # Retry in 30s if something crashes
         root.after(30000, lambda: bottom_marquee(grouptotal, marquee))
 
@@ -809,10 +687,10 @@ def bottom_marquee(grouptotal, marquee, update_interval=300000):
 def playlist_generator(musicpath):
     """Generate music playlist with error handling"""
     try:
-        debug_msg("PLAYLIST_GENERATOR-searching for music files...", 1)
+        debugger.debug_msg("PLAYLIST_GENERATOR-searching for music files...", 1)
 
         if not os.path.exists(musicpath):
-            debug_msg(f"PLAYLIST_GENERATOR-creating music directory: {musicpath}", 1)
+            debugger.debug_msg(f"PLAYLIST_GENERATOR-creating music directory: {musicpath}", 1)
             os.makedirs(musicpath)
             return []
 
@@ -827,14 +705,14 @@ def playlist_generator(musicpath):
                 elif entry.lower().endswith(('.mp3', '.wav', '.ogg')):  # Only audio files
                     allFiles.append(fullPath)
             except Exception as e:
-                debug_msg(f"PLAYLIST_GENERATOR-error processing {entry}: {str(e)}", 2)
+                debugger.debug_msg(f"PLAYLIST_GENERATOR-error processing {entry}: {str(e)}", 2)
                 continue
 
-        debug_msg(f"PLAYLIST_GENERATOR-found {len(allFiles)} music files", 1)
+        debugger.debug_msg(f"PLAYLIST_GENERATOR-found {len(allFiles)} music files", 1)
         return allFiles
 
     except Exception as e:
-        debug_msg(f"PLAYLIST_GENERATOR-error: {str(e)}", 1)
+        debugger.debug_msg(f"PLAYLIST_GENERATOR-error: {str(e)}", 1)
         return []
 
 # DEF play background music with improved error handling
@@ -842,34 +720,34 @@ def music_player(songNumber, playlist, musicpath):
     """Play background music with error handling"""
     try:
         if not playlist:
-            debug_msg("MUSIC_PLAYER-no music files found, skipping", 1)
+            debugger.debug_msg("MUSIC_PLAYER-no music files found, skipping", 1)
             root.after(10000, music_player, 0, playlist, musicpath)
             return
 
         if not pygame.mixer.get_init():
-            debug_msg("MUSIC_PLAYER-pygame mixer not initialized", 1)
+            debugger.debug_msg("MUSIC_PLAYER-pygame mixer not initialized", 1)
             root.after(10000, music_player, songNumber, playlist, musicpath)
             return
 
         if not pygame.mixer.music.get_busy() and songNumber < len(playlist):
             try:
-                debug_msg(f"MUSIC_PLAYER-playing song {os.path.basename(playlist[songNumber])}", 1)
+                debugger.debug_msg(f"MUSIC_PLAYER-playing song {os.path.basename(playlist[songNumber])}", 1)
                 pygame.mixer.music.load(playlist[songNumber])
                 pygame.mixer.music.play(loops=0)
                 songNumber = songNumber + 1
             except Exception as e:
-                debug_msg(f"MUSIC_PLAYER-error playing {playlist[songNumber]}: {str(e)}", 1)
+                debugger.debug_msg(f"MUSIC_PLAYER-error playing {playlist[songNumber]}: {str(e)}", 1)
                 songNumber = songNumber + 1  # Skip problematic file
 
         elif not pygame.mixer.music.get_busy() and songNumber >= len(playlist):
-            debug_msg("MUSIC_PLAYER-playlist complete, re-shuffling...", 1)
+            debugger.debug_msg("MUSIC_PLAYER-playlist complete, re-shuffling...", 1)
             songNumber = 0
             random.shuffle(playlist)
 
         root.after(2000, music_player, songNumber, playlist, musicpath)
 
     except Exception as e:
-        debug_msg(f"MUSIC_PLAYER-error: {str(e)}", 1)
+        debugger.debug_msg(f"MUSIC_PLAYER-error: {str(e)}", 1)
         root.after(10000, music_player, songNumber, playlist, musicpath)
 
 # DEF Word Shortener 5000 with improved error handling
@@ -908,38 +786,18 @@ def word_short(phrase, length):
             for key, value in dict_short.items():
                 phrase = re.sub(key, value, phrase)
 
-            debug_msg(f"WORD_SHORT-phrase shortened to {phrase}", 2)
+            debugger.debug_msg(f"WORD_SHORT-phrase shortened to {phrase}", 2)
 
         return phrase[:length] if len(phrase) > length else phrase
 
     except Exception as e:
-        debug_msg(f"WORD_SHORT-error: {str(e)}", 2)
+        debugger.debugger.debug_msg(f"WORD_SHORT-error: {str(e)}", 2)
         return str(phrase)[:length] if phrase else "ERROR"
-
-# DEF debug messenger
-def debug_msg(message, priority):
-    """Debug message handler"""
-    try:
-        debugmode = 2  # 0=disabled, 1=normal, 2=verbose
-        timestamp = 2  # 0=none, 1=time, 2=date+time
-
-        if timestamp == 1:
-            timestr = time.strftime("%H:%M.")
-        elif timestamp == 2:
-            timestr = time.strftime("%Y%m%d-%H:%M.")
-        else:
-            timestr = ""
-
-        if debugmode > 0 and priority <= debugmode:
-            print(f"{timestr}{PROG}.{VER}.{message}")
-
-    except Exception as e:
-        print(f"DEBUG_MSG-error: {str(e)}")
 
 # DEF signal handler for graceful shutdown
 def signal_handler(sig, frame):
     """Handle shutdown signals gracefully"""
-    debug_msg("SIGNAL_HANDLER-received shutdown signal", 1)
+    debugger.debugger.debug_msg("SIGNAL_HANDLER-received shutdown signal", 1)
     try:
         pygame.mixer.quit()
         root.quit()
@@ -969,23 +827,23 @@ def main():
         root.wm_title("wpg-weatherchan")
 
         # Clock - Top RIGHT
-        debug_msg("ROOT-placing clock", 1)
+        debugger.debug_msg("ROOT-placing clock", 1)
         timeText = tk.Label(root, text="", font=("7-Segment Normal", 22), fg="white", bg="green")
         timeText.place(x=403, y=40)
         timeColon1 = tk.Label(root, text=":", font=("VCR OSD Mono", 32), fg="white", bg="green")
         timeColon1.place(x=465, y=36)
         timeColon2 = tk.Label(root, text=":", font=("VCR OSD Mono", 32), fg="white", bg="green")
         timeColon2.place(x=560, y=36)
-        debug_msg("ROOT-launching clock updater", 1)
+        debugger.debug_msg("ROOT-launching clock updater", 1)
         clock()
 
         # Title - Top LEFT
-        debug_msg("ROOT-placing Title Text", 1)
+        debugger.debug_msg("ROOT-placing Title Text", 1)
         Title = tk.Label(root, text="ENVIRONMENT CANADA", font=("VCR OSD Mono", 22, "bold"), fg="white", bg="green")
         Title.place(x=80, y=40)
 
         # Initialize weather station objects
-        debug_msg("ROOT-initializing weather stations", 1)
+        debugger.debug_msg("ROOT-initializing weather stations", 1)
         try:
             # group 1 - Manitoba/Regional
             ec_en_wpg = ECWeather(station_id='MB/s0000193', language='english')
@@ -1015,10 +873,10 @@ def main():
             ec_en_hal = ECWeather(station_id='NS/s0000318', language='english')
             ec_en_stj = ECWeather(station_id='NL/s0000280', language='english')
 
-            debug_msg("ROOT-weather stations initialized successfully", 1)
+            debugger.debug_msg("ROOT-weather stations initialized successfully", 1)
 
         except Exception as e:
-            debug_msg(f"ROOT-error initializing weather stations: {str(e)}", 1)
+            debugger.debug_msg(f"ROOT-error initializing weather stations: {str(e)}", 1)
             # Continue anyway - the safe_get_weather_value function will handle missing data
 
         # Initialize update timestamps
@@ -1033,66 +891,67 @@ def main():
         real_forecast_date = datetime.datetime.now().strftime("%a %b %d/%Y")
 
         # Update Weather Information
-        debug_msg("ROOT-launching initial weather update", 1)
+        debugger.debug_msg("ROOT-launching initial weather update", 1)
         try:
             weather_update(0)  # update all cities
-            debug_msg("ROOT-initial weather update completed", 1)
+            debugger.debug_msg("ROOT-initial weather update completed", 1)
         except Exception as e:
-            debug_msg(f"ROOT-initial weather update failed: {str(e)}", 1)
-            debug_msg("ROOT-continuing with fallback data", 1)
+            debugger.debug_msg(f"ROOT-initial weather update failed: {str(e)}", 1)
+            debugger.debug_msg("ROOT-continuing with fallback data", 1)
 
         # Middle Section (Cycling weather pages)
-        debug_msg("ROOT-launching weather_page", 1)
+        debugger.debug_msg("ROOT-launching weather_page", 1)
         PageColour = BLUE  # BLUE
         PageNum = 1
         try:
             weather_page(PageColour, PageNum)
         except Exception as e:
-            debug_msg(f"ROOT-error starting weather pages: {str(e)}", 1)
+            debugger.debug_msg(f"ROOT-error starting weather pages: {str(e)}", 1)
 
         # Generate background music playlist
-        debug_msg("ROOT-launching playlist generator", 1)
+        debugger.debug_msg("ROOT-launching playlist generator", 1)
         musicpath = os.path.expanduser("~/WeatherPi/music")
         try:
             playlist = playlist_generator(musicpath)
-            random.shuffle(playlist) if playlist else None
-            debug_msg(f"ROOT-playlist generated with {len(playlist)} songs", 1)
+            # pylint should not be complaining about this
+            random.shuffle(playlist) if playlist else None # pylint: disable=expression-not-assigned
+            debugger.debug_msg(f"ROOT-playlist generated with {len(playlist)} songs", 1)
         except Exception as e:
-            debug_msg(f"ROOT-playlist generation error: {str(e)}", 1)
+            debugger.debug_msg(f"ROOT-playlist generation error: {str(e)}", 1)
             playlist = []
 
         # Play background music
-        debug_msg("ROOT-launching background music", 1)
+        debugger.debug_msg("ROOT-launching background music", 1)
         songNumber = 0
         try:
             pygame.mixer.init()
             music_player(songNumber, playlist, musicpath)
-            debug_msg("ROOT-background music system started", 1)
+            debugger.debug_msg("ROOT-background music system started", 1)
         except Exception as e:
-            debug_msg(f"ROOT-background music error: {str(e)}", 1)
+            debugger.debug_msg(f"ROOT-background music error: {str(e)}", 1)
 
         # # Bottom Scrolling Text (RSS Feed)
-        debug_msg("ROOT-launching bottom_marquee", 1)
+        debugger.debug_msg("ROOT-launching bottom_marquee", 1)
         try:
             marquee = tk.Canvas(root, height=120, width=580, bg="green")
             marquee.config(highlightbackground="green")
             marquee.place(x=80, y=400)
             root.after(2000, lambda m=marquee: bottom_marquee(grouptotal, m))
         except Exception as e:
-            debug_msg(f"ROOT-bottom marquee error: {str(e)}", 1)
+            debugger.debug_msg(f"ROOT-bottom marquee error: {str(e)}", 1)
 
         # Start the main loop
-        debug_msg("ROOT-starting main application loop", 1)
+        debugger.debug_msg("ROOT-starting main application loop", 1)
         try:
             root.mainloop()
         except KeyboardInterrupt:
-            debug_msg("ROOT-keyboard interrupt received", 1)
+            debugger.debug_msg("ROOT-keyboard interrupt received", 1)
             signal_handler(None, None)
         except Exception as e:
-            debug_msg(f"ROOT-main loop error: {str(e)}", 1)
+            debugger.debug_msg(f"ROOT-main loop error: {str(e)}", 1)
 
     except Exception as e:
-        debug_msg(f"ROOT-critical startup error: {str(e)}", 1)
+        debugger.debug_msg(f"ROOT-critical startup error: {str(e)}", 1)
         sys.exit(1)
     finally:
         # Cleanup

@@ -449,6 +449,7 @@ disable=raw-checker-failed,
         W0718, # broad-exception-caught
         E0015, # unrecognized-option
         E1102, # not-callable
+        E0606, # use-before-assignment
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
