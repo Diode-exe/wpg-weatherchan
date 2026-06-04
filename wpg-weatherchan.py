@@ -10,13 +10,13 @@ import urllib.request
 import tkinter as tk
 import time
 import datetime
-import asyncio # for env_canada
 import textwrap # used to format forecast text
 from env_canada import ECWeather
 import feedparser # for RSS feed
 import pygame # for background music
 from bs4 import BeautifulSoup
 from debug_utils import DebugUtils
+from weather import WeatherUpdate
 
 PROG = "wpg-weather"
 VER = "2.3.3"
@@ -39,6 +39,32 @@ debugger = DebugUtils()
 real_forecast_time = ""
 real_forecast_date = ""
 text_forecast = []
+root = None
+timeText = None
+updt_tstp = None
+weather_updater = None
+ec_en_wpg = None
+ec_en_brn = None
+ec_en_thm = None
+ec_en_tps = None
+ec_en_chu = None
+ec_en_fln = None
+ec_en_ken = None
+ec_en_tby = None
+ec_en_vic = None
+ec_en_van = None
+ec_en_edm = None
+ec_en_cal = None
+ec_en_ssk = None
+ec_en_reg = None
+ec_en_wht = None
+ec_en_tor = None
+ec_en_otw = None
+ec_en_qbc = None
+ec_en_mtl = None
+ec_en_frd = None
+ec_en_hal = None
+ec_en_stj = None
 
 # DEF clock Updater
 def clock():
@@ -791,13 +817,13 @@ def word_short(phrase, length):
         return phrase[:length] if len(phrase) > length else phrase
 
     except Exception as e:
-        debugger.debugger.debug_msg(f"WORD_SHORT-error: {str(e)}", 2)
+        debugger.debug_msg(f"WORD_SHORT-error: {str(e)}", 2)
         return str(phrase)[:length] if phrase else "ERROR"
 
 # DEF signal handler for graceful shutdown
 def signal_handler(sig, frame):
     """Handle shutdown signals gracefully"""
-    debugger.debugger.debug_msg("SIGNAL_HANDLER-received shutdown signal", 1)
+    debugger.debug_msg("SIGNAL_HANDLER-received shutdown signal", 1)
     try:
         pygame.mixer.quit()
         root.quit()
@@ -815,6 +841,8 @@ def main():
     global ec_en_tor, ec_en_otw, ec_en_qbc, ec_en_mtl, ec_en_frd, ec_en_hal, ec_en_stj
 
     try:
+        weather_updater = WeatherUpdate()
+
         # Setup signal handlers
         signal.signal(signal.SIGINT, signal_handler)
         signal.signal(signal.SIGTERM, signal_handler)
@@ -873,6 +901,33 @@ def main():
             ec_en_hal = ECWeather(station_id='NS/s0000318', language='english')
             ec_en_stj = ECWeather(station_id='NL/s0000280', language='english')
 
+            stations = {
+                "wpg": ec_en_wpg,
+                "brn": ec_en_brn,
+                "thm": ec_en_thm,
+                "tps": ec_en_tps,
+                "chu": ec_en_chu,
+                "fln": ec_en_fln,
+                "ken": ec_en_ken,
+                "tby": ec_en_tby,
+                "vic": ec_en_vic,
+                "van": ec_en_van,
+                "edm": ec_en_edm,
+                "cal": ec_en_cal,
+                "ssk": ec_en_ssk,
+                "reg": ec_en_reg,
+                "wht": ec_en_wht,
+                "tor": ec_en_tor,
+                "otw": ec_en_otw,
+                "qbc": ec_en_qbc,
+                "mtl": ec_en_mtl,
+                "frd": ec_en_frd,
+                "hal": ec_en_hal,
+                "stj": ec_en_stj,
+            }
+
+            weather_updater.set_stations(stations)
+
             debugger.debug_msg("ROOT-weather stations initialized successfully", 1)
 
         except Exception as e:
@@ -893,7 +948,7 @@ def main():
         # Update Weather Information
         debugger.debug_msg("ROOT-launching initial weather update", 1)
         try:
-            weather_update(0)  # update all cities
+            weather_updater.weather_update(0, updt_tstp)  # update all cities
             debugger.debug_msg("ROOT-initial weather update completed", 1)
         except Exception as e:
             debugger.debug_msg(f"ROOT-initial weather update failed: {str(e)}", 1)
